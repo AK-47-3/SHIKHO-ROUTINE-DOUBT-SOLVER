@@ -1,1 +1,1629 @@
-h
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>শিখো - Premium Routine Editor & ORION Doubt Solver</title>
+
+<!-- Google Font for Routine Editor -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Google Font for Doubt Solver -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap">
+
+<!-- html2canvas CDN for saving routine as image -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Poppins', 'Noto Sans Bengali', sans-serif; /* Prioritize Poppins for routine, fallback to Noto Sans Bengali */
+    background: #f5f7fa;
+    margin: 0; padding: 30px;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Global Message Box */
+  #messageBox {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50; /* Green for success */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none; /* Hidden by default */
+    font-weight: 600;
+    animation: fadeOut 0.5s ease-out 2.5s forwards;
+  }
+
+  #messageBox.error {
+    background-color: #f44336; /* Red for error */
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  /* Navigation Buttons */
+  .nav-buttons {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+  }
+  .nav-buttons button {
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    background: #e0e0e0;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .nav-buttons button.active {
+    background: linear-gradient(135deg, #0077cc, #004f7a);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,119,204,0.3);
+  }
+  .nav-buttons button:hover:not(.active) {
+    background-color: #d0d0d0;
+  }
+
+  /* Routine Editor Header */
+  header.routine-header {
+    text-align: center;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: space-between; /* Distribute items */
+    position: relative; /* For dropdown positioning */
+    width: 100%; /* Ensure it takes full width of its parent */
+    max-width: 720px; /* Match container max-width */
+  }
+  header.routine-header img {
+    height: 60px;
+  }
+  header.routine-header h1.centered-title {
+    font-weight: 700;
+    font-size: 2.2rem;
+    color: #005f99;
+    margin: 0;
+    flex-grow: 1; /* Allow title to take available space */
+    text-align: center; /* Center the title within its flex item */
+  }
+
+  /* 3-dot menu styles */
+  .menu-container {
+    position: relative;
+    margin-left: auto; /* Push to the right */
+  }
+
+  .three-dot-menu-btn {
+    background: none;
+    border: none;
+    font-size: 1.8rem; /* Make dots visible */
+    cursor: pointer;
+    color: #005f99;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+  }
+  .three-dot-menu-btn:hover {
+    background-color: #e0e0e0;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%; /* Position below the button */
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 150px;
+    z-index: 100;
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    padding: 8px 0;
+  }
+
+  .dropdown-menu.show {
+    display: flex;
+  }
+
+  .dropdown-menu button.menu-item {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #333;
+    transition: background-color 0.2s ease;
+    border-radius: 0; /* Remove rounded corners for menu items */
+  }
+  .dropdown-menu button.menu-item:hover {
+    background-color: #f0f0f0;
+  }
+
+  /* Info Modal */
+  .info-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 200; /* Higher than dropdown */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6); /* Dark overlay */
+    justify-content: center;
+    align-items: center;
+    animation: fadeInModal 0.3s ease-out forwards;
+  }
+
+  .info-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    animation: slideInModal 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideInModal {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .close-modal-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+  }
+  .close-modal-btn:hover,
+  .close-modal-btn:focus {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  #modalTitle {
+    text-align: center;
+    color: #005f99;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+
+  #modalBody {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  #modalBody img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 15px auto;
+    display: block;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    /* Removed cursor: pointer and transform for image as per new request */
+  }
+
+
+  /* Specific styling for owner info text */
+  #modalBody .owner-info-panel {
+      background-color: #f8f8f8;
+      border: 1px solid #eee;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Noto Sans Bengali', sans-serif; /* Ensure Bengali font applies */
+      white-space: pre-wrap; /* Preserve line breaks */
+      text-align: left; /* Align text within the panel */
+      color: #333;
+      font-size: 1.05rem;
+      line-height: 1.5; /* Reduced line height */
+      transition: box-shadow 0.5s ease-out; /* Smooth transition for shadow */
+  }
+  /* Rainbow effect for owner info panel */
+  .owner-info-panel.rainbow-effect {
+    animation: rainbowBorder 3s infinite alternate; /* Apply animation */
+  }
+
+  @keyframes rainbowBorder {
+    0% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); } /* Red */
+    16% { box-shadow: 0 0 15px rgba(255, 165, 0, 0.7); } /* Orange */
+    33% { box-shadow: 0 0 15px rgba(255, 255, 0, 0.7); } /* Yellow */
+    50% { box-shadow: 0 0 15px rgba(0, 128, 0, 0.7); } /* Green */
+    66% { box-shadow: 0 0 15px rgba(0, 0, 255, 0.7); } /* Blue */
+    83% { box-shadow: 0 0 15px rgba(75, 0, 130, 0.7); } /* Indigo */
+    100% { box-shadow: 0 0 15px rgba(238, 130, 238, 0.7); } /* Violet */
+  }
+
+
+  #modalBody .owner-info-panel .panel-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #4a00e0; /* Purple for titles */
+      margin-bottom: 8px; /* Reduced margin */
+      text-align: center;
+  }
+  #modalBody .owner-info-panel .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0077cc; /* Blue for section titles */
+      margin-top: 10px; /* Reduced margin */
+      margin-bottom: 3px; /* Reduced margin */
+  }
+  #modalBody .owner-info-panel .separator {
+      border-top: 1px dashed #ccc;
+      margin: 5px 0; /* Reduced margin */
+  }
+  #modalBody .owner-info-panel .detail-line {
+      margin-bottom: 3px; /* Reduced margin */
+      display: flex; /* Use flexbox for alignment */
+      align-items: baseline;
+  }
+  #modalBody .owner-info-panel .detail-label {
+      font-weight: 600;
+      color: #555;
+      min-width: 80px; /* Ensure labels align */
+      margin-right: 5px; /* Space between label and value */
+  }
+  #modalBody .owner-info-panel .powered-by {
+      text-align: center;
+      margin-top: 15px; /* Reduced margin */
+      font-weight: 600;
+      color: #4a00e0;
+      font-size: 1.1rem;
+  }
+
+
+  /* Routine Editor Container */
+  .container.routine-editor {
+    width: 100%;
+    max-width: 720px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    padding: 25px 35px 40px 35px;
+    margin-bottom: 40px; /* Space between routine and doubt solver */
+  }
+
+  /* Select box */
+  .routine-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .routine-controls .class-select-group {
+    display: flex;
+    align-items: center;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  select {
+    margin-left: 10px;
+    padding: 9px 15px;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1.8px solid #0077cc;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+  }
+  select:hover, select:focus {
+    border-color: #004f7a;
+  }
+
+  /* Day Selection Buttons */
+  .day-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .day-selection button {
+    padding: 8px 15px;
+    font-size: 0.95rem;
+    border: 1px solid #0077cc;
+    border-radius: 20px;
+    background-color: #eef6fc;
+    color: #0077cc;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .day-selection button.active {
+    background-color: #0077cc;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,119,204,0.3);
+  }
+  .day-selection button:hover:not(.active) {
+    background-color: #d2e9fc;
+  }
+
+  /* Table styles */
+  table {
+    width: 100%;
+    margin-top: 25px;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+  }
+  thead tr {
+    background: #0077cc;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 119, 204, 0.3);
+  }
+  thead th {
+    color: white;
+    font-weight: 700;
+    padding: 14px 18px;
+    font-size: 1.1rem;
+    text-align: left;
+    user-select: none;
+  }
+  thead th:last-child {
+    width: 80px; /* For action buttons */
+    text-align: center;
+  }
+
+  tbody tr {
+    background: #eef6fc;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+    transition: background-color 0.3s ease;
+  }
+  tbody tr:hover {
+    background: #d2e9fc;
+  }
+  tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+  }
+
+  /* Input styles */
+  input[type="text"] {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 1rem;
+    border: 1.5px solid #bbb;
+    border-radius: 10px;
+    transition: border-color 0.3s ease;
+    font-weight: 500;
+  }
+  input[type="text"]:focus {
+    border-color: #0077cc;
+    outline: none;
+    box-shadow: 0 0 6px #0077ccaa;
+  }
+
+  /* Action Buttons (Add Row, Remove Row, Save) */
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+  }
+  .action-buttons button, button.remove-row-btn {
+    background: linear-gradient(135deg, #0077cc, #004f7a);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,119,204,0.35);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .action-buttons button:hover, button.remove-row-btn:hover {
+    background: linear-gradient(135deg, #005f99, #003f5a);
+    box-shadow: 0 6px 12px rgba(0,95,153,0.55);
+  }
+  button.remove-row-btn {
+    background: #dc3545; /* Red for remove */
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 4px rgba(220,53,69,0.35);
+  }
+  button.remove-row-btn:hover {
+    background: #c82333;
+    box-shadow: 0 3px 6px rgba(200,35,51,0.55);
+  }
+
+
+  /* Doubt Solver Specific Styles */
+  header.doubt-header {
+    display: flex;
+    align-items: center;
+    background-color: #4a00e0;
+    color: white;
+    padding: 15px;
+    width: 95%; /* Adjusted to take more screen width */
+    max-width: 900px; /* Increased max-width */
+    margin-bottom: 0; /* Remove margin-bottom here */
+    justify-content: center; /* Center header content */
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+  }
+  header.doubt-header img {
+    height: 40px;
+    margin-right: 10px;
+  }
+  header.doubt-header h1 {
+    font-size: 20px;
+    margin: 0; /* Remove default margin */
+  }
+  .doubt-container {
+    margin-top: 0; /* Already handled by main body padding */
+    background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Subtle gradient */
+    border-radius: 0 0 10px 10px; /* Rounded bottom corners */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Stronger shadow */
+    padding: 20px;
+    width: 95%; /* Adjusted to take more screen width */
+    max-width: 900px; /* Increased max-width */
+    border: 1px solid #e0e0e0; /* Light border */
+    border-top: none; /* Remove top border to connect with header */
+    animation: fadeIn 0.5s ease-out; /* Fade in animation for the container */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .doubt-container h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: center; /* Center the heading */
+    color: #333;
+  }
+  .subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center; /* Center subject buttons */
+  }
+  .subjects button {
+    padding: 10px 18px; /* Slightly larger padding */
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 25px; /* More rounded */
+    cursor: pointer;
+    font-size: 15px; /* Slightly larger font */
+    font-family: 'Noto Sans Bengali', sans-serif; /* Apply Bengali font */
+    transition: all 0.3s ease; /* Smooth transitions for all properties */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow */
+    position: relative; /* For potential future icons */
+  }
+  .subjects button:hover {
+    background-color: #d0d0d0;
+    transform: translateY(-2px); /* Lift effect on hover */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  .subjects button.selected {
+    background: linear-gradient(45deg, #4a00e0, #8e24aa); /* Gradient for selected */
+    color: white;
+    transform: scale(1.05); /* Slightly larger when selected */
+    box-shadow: 0 5px 15px rgba(74,0,224,0.3); /* Stronger shadow for selected */
+  }
+  .image-input-section {
+    margin-top: 15px;
+    text-align: center;
+    border: 1px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  .image-input-section input[type="file"] {
+    display: none; /* Hide default file input */
+  }
+  .image-input-section label {
+    display: inline-block;
+    background-color: #0077cc;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+  .image-input-section label:hover {
+    background-color: #005f99;
+  }
+  #imagePreview {
+    max-width: 100%;
+    max-height: 150px;
+    margin-top: 10px;
+    border-radius: 5px;
+    display: none; /* Hidden by default */
+    object-fit: contain;
+  }
+  .remove-image-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: none; /* Hidden by default */
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 100px; /* Slightly taller */
+    padding: 12px; /* More padding */
+    border: 1px solid #ccc;
+    border-radius: 8px; /* More rounded */
+    resize: vertical;
+    font-family: 'Noto Sans Bengali', sans-serif; /* Apply Bengali font */
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  textarea:focus {
+    border-color: #4a00e0;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74,0,224,0.2); /* Focus ring effect */
+  }
+  .submit-btn {
+    margin-top: 20px; /* More space */
+    padding: 12px 25px; /* Larger padding */
+    background: linear-gradient(135deg, #4a00e0, #8e24aa); /* Gradient button */
+    color: white;
+    border: none;
+    border-radius: 30px; /* Pill shape */
+    cursor: pointer;
+    display: block; /* Make it a block element to center with margin auto */
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Noto Sans Bengali', sans-serif; /* Apply Bengali font */
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(74,0,224,0.3); /* Strong shadow */
+    transition: all 0.3s ease;
+  }
+  .submit-btn:hover {
+    transform: translateY(-3px); /* Lift effect */
+    box-shadow: 0 8px 20px rgba(74,0,224,0.4);
+  }
+  .submit-btn:active {
+    transform: translateY(0); /* Press effect */
+    box-shadow: 0 2px 5px rgba(74,0,224,0.2);
+  }
+
+  .response {
+    margin-top: 25px; /* More space */
+    padding: 15px; /* More padding */
+    background-color: #eef2f7; /* Lighter background for response */
+    border-radius: 8px;
+    white-space: pre-wrap; /* Preserve whitespace and line breaks */
+    font-family: 'Noto Sans Bengali', sans-serif; /* Apply Bengali font */
+    border-left: 5px solid #4a00e0; /* Left border for emphasis */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Subtle shadow */
+    line-height: 1.6; /* Better readability */
+    opacity: 0; /* Hidden by default for animation */
+    transform: translateY(20px); /* Start slightly below for animation */
+    animation: responseFadeIn 0.5s ease-out forwards; /* Animation on display */
+  }
+
+  @keyframes responseFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Loading Spinner */
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    height: 50px; /* Ensure space for spinner */
+  }
+  .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #4a00e0;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    display: none; /* Hidden by default */
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Chat History Styles */
+  .chat-history {
+    margin-top: 30px;
+    max-height: 400px; /* Limit height for scrolling */
+    overflow-y: auto; /* Enable scrolling */
+    padding-right: 10px; /* Space for scrollbar */
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+  }
+  .chat-history-item {
+    background-color: #f0f4f8;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    animation: fadeIn 0.3s ease-out;
+  }
+  .chat-history-item.user-message {
+    background-color: #e6f0ff;
+    border-left: 4px solid #0077cc;
+  }
+  .chat-history-item.ai-response {
+    background-color: #f0f8f0;
+    border-left: 4px solid #4CAF50;
+  }
+  .chat-history-item p {
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+  }
+  .chat-history-item .timestamp {
+    font-size: 0.8em;
+    color: #888;
+    text-align: right;
+    margin-top: 5px;
+  }
+  .chat-history-item .subject-info {
+    font-size: 0.9em;
+    color: #555;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  .chat-history-item img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 5px;
+    margin-top: 10px;
+    display: block;
+  }
+  /* New button for "Ask Another Question" */
+  .new-question-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #6c757d; /* Grey color */
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .new-question-btn:hover {
+    background-color: #5a6268;
+  }
+
+  /* Footer Style */
+  footer {
+    margin-top: 50px; /* Space from the content above */
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  footer p {
+    margin: 0;
+  }
+
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .routine-controls {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .routine-controls .class-select-group {
+      width: 100%;
+      justify-content: center;
+    }
+    .day-selection {
+      width: 100%;
+      justify-content: center;
+    }
+    .action-buttons {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .action-buttons button {
+      width: 100%;
+    }
+    thead th:last-child {
+      width: auto;
+    }
+    /* Doubt Solver adjustments for smaller screens */
+    header.doubt-header, .doubt-container {
+      width: 95%; /* Adjust width for tablets */
+      max-width: 700px; /* Adjust max-width for tablets */
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 20px 12px;
+    }
+    .nav-buttons {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .nav-buttons button {
+      width: 100%;
+      font-size: 1rem;
+      padding: 10px 20px;
+    }
+    .container.routine-editor, .doubt-container {
+      padding: 20px 15px 30px 15px;
+    }
+    header.routine-header h1 {
+      font-size: 1.7rem;
+    }
+    thead th {
+      font-size: 0.9rem;
+      padding: 10px 12px;
+    }
+    tbody td {
+      padding: 10px 12px;
+    }
+    input[type="text"] {
+      font-size: 0.85rem;
+      padding: 7px 10px;
+    }
+    .action-buttons button {
+      font-size: 1rem;
+      padding: 10px 20px;
+    }
+    button.remove-row-btn {
+      font-size: 0.8rem;
+      padding: 6px 10px;
+    }
+    header.doubt-header h1 {
+      font-size: 18px;
+    }
+    .doubt-container h2 {
+      font-size: 16px;
+    }
+    .subjects button {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    textarea {
+      min-height: 60px;
+    }
+    .submit-btn {
+      padding: 8px 15px;
+      font-size: 14px;
+    }
+    /* Doubt Solver adjustments for mobile */
+    header.doubt-header, .doubt-container {
+      width: 100%; /* Full width on mobile */
+      max-width: none; /* Remove max-width constraint */
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="messageBox"></div>
+
+<div class="nav-buttons">
+  <button id="routineEditorNavBtn" class="active" onclick="showSection('routineEditorSection')">রুটিন এডিটর</button>
+  <button id="doubtSolverNavBtn" onclick="showSection('doubtSolverSection')">ডাউট সলভার</button>
+</div>
+
+<!-- Routine Editor Section -->
+<div id="routineEditorSection">
+  <header class="routine-header">
+    <img src="https://i.postimg.cc/Yq1fWTWH/651548cae8ac3849400a0da0-Shikho-Logo-02-01-removebg-preview.png" alt="Shikho Logo" />
+    <h1 class="centered-title">শিখো - Editable Routine</h1>
+    <div class="menu-container">
+      <button id="threeDotMenuBtn" class="three-dot-menu-btn">&#8942;</button> <!-- Vertical ellipsis -->
+      <div id="dropdownMenu" class="dropdown-menu">
+        <button class="menu-item" data-content="about">About</button>
+        <button class="menu-item" data-content="how-to-use">How to Use</button>
+        <button class="menu-item" data-content="owner-info">Owner Info</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container routine-editor">
+    <div class="routine-controls">
+      <div class="class-select-group">
+        <label for="classSelect">ক্লাস নির্বাচন করুন:</label>
+        <select id="classSelect">
+          <option value="6">ক্লাস ৬</option>
+          <option value="7">ক্লাস ৭</option>
+          <option value="8">ক্লাস ৮</option>
+          <option value="9">ক্লাস ৯</option>
+          <option value="10">ক্লাস ১০</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="day-selection" id="daySelection">
+      <!-- Day buttons will be populated by JavaScript -->
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>সময়</th><th>বিষয়</th><th></th></tr>
+      </thead>
+      <tbody id="routineBody"></tbody>
+    </table>
+
+    <div class="action-buttons">
+      <button id="addRowBtn">নতুন রো যোগ করুন</button>
+      <button id="saveBtn">সেভ করুন</button>
+      <button id="saveImageBtn">রুটিন ছবি হিসেবে সেভ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- Doubt Solver Section -->
+<div id="doubtSolverSection" style="display:none;">
+  <header class="doubt-header">
+    <img src="https://i.postimg.cc/cLkKgcXW/cute-boy-thinking-ai-generative-free-png.png" alt="ORION Logo">
+    <h1>ORION Doubt Solver</h1>
+  </header>
+  <div class="doubt-container">
+    <h2>তুমি কোন সাবজেক্টের ডাউট সলভ করতে চাও?</h2>
+    <div class="subjects">
+      <button onclick="selectSubject(this)">গণিত</button>
+      <button onclick="selectSubject(this)">পদার্থবিজ্ঞান</button>
+      <button onclick="selectSubject(this)">রসায়ন</button>
+      <button onclick="selectSubject(this)">জীববিজ্ঞান</button>
+      <button onclick="selectSubject(this)">ইংরেজি</button>
+    </div>
+    <div class="image-input-section">
+      <input type="file" id="imageUpload" accept="image/*">
+      <label for="imageUpload">ছবি আপলোড করুন</label>
+      <img id="imagePreview" src="#" alt="Image Preview">
+      <button id="removeImageBtn" class="remove-image-btn">ছবি সরান</button>
+    </div>
+    <textarea id="question" placeholder="তোমার সমস্যাটি স্পষ্ট করে লেখো..."></textarea>
+    <button class="submit-btn" onclick="askDoubt()">এগিয়ে যাও</button>
+    <div class="loading-spinner">
+      <div class="spinner" id="loadingSpinner"></div>
+    </div>
+    <div class="response" id="responseBox" style="display:none;"></div>
+    <button id="newQuestionBtn" class="new-question-btn" style="display:none;">নতুন প্রশ্ন করুন</button>
+
+    <h3>পূর্ববর্তী প্রশ্ন ও উত্তর</h3>
+    <div class="chat-history" id="chatHistory">
+      <!-- Chat history will be loaded here -->
+      <p style="text-align: center; color: #888;">ইতিহাস লোড হচ্ছে...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Info Modal for About, How to Use, Owner Info -->
+<div id="infoModal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="close-modal-btn">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<footer>
+  <p>ᴄʀᴇᴀᴛᴇᴅ ʙʏ ᴏʀɪᴏɴ</p>
+</footer>
+
+<script>
+  // Global message box function
+  function showMessage(message, isError = false) {
+    const msgBox = document.getElementById('messageBox');
+    msgBox.textContent = message;
+    msgBox.className = ''; // Clear previous classes
+    if (isError) {
+      msgBox.classList.add('error'); // Add 'error' class only if isError is true
+    }
+    msgBox.style.display = 'block';
+    // Remove the message after 3 seconds
+    setTimeout(() => {
+      msgBox.style.display = 'none';
+    }, 3000);
+  }
+
+  // --- Routine Editor Script ---
+  const daysOfWeek = ["শনি", "রবি", "সোম", "মঙ্গল", "বুধ", "বৃহস্পতি", "শুক্র"];
+
+  // Initial routine data structure, nested by class and then by day
+  let routines = {};
+
+  // Default routine template for a single day - now more dynamic based on NCTB subjects
+  const generateDefaultRoutineForClass = (classNum) => {
+    let subjects = [];
+    if (classNum >= 6 && classNum <= 8) {
+      subjects = [
+        "বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়",
+        "ধর্ম শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "শারীরিক শিক্ষা ও স্বাস্থ্য",
+        "কর্ম ও জীবনমুখী শিক্ষা", "চারু ও কারুকলা"
+      ];
+    } else if (classNum >= 9 && classNum <= 10) {
+      // Assuming Science group for 9-10 for a comprehensive routine
+      subjects = [
+        "বাংলা ১ম পত্র", "বাংলা ২য় পত্র", "ইংরেজি ১ম পত্র", "ইংরেজি ২য় পত্র",
+        "গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত",
+        "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি",
+        "শারীরিক শিক্ষা ও স্বাস্থ্য", "কর্ম ও জীবনমুখী শিক্ষা"
+      ];
+    }
+
+    const dailyTimeSlots = [
+      "৬:৩০ – ৭:৩০", "৭:৩০ – ৮:৩০", "৮:৩০ – ৯:০০ (বিরতি)", "৯:০০ – ১০:০০",
+      "১০:০০ – ১১:০০", "১১:০০ – ১২:০০", "১২:০০ – ১:০০ (বিরতি)", "১:০০ – ২:০০",
+      "২:০০ – ৩:০০", "৩:০০ – ৪:০০ (রিভিশন)", "৪:০০ – ৫:০০ (এক্সট্রা কারিকুলার)",
+      "৭:০০ – ৮:০০ (প্রশ্নপত্র সমাধান)", "৮:০০ – ৯:০০ (ফ্রি / সেল্ফ স্টাডি)"
+    ];
+
+    const routine = {};
+    let subjectIndex = 0;
+    const coreSubjectsPerDay = 6; // Target 6 core subjects per day
+
+    daysOfWeek.forEach(day => {
+      routine[day] = [];
+      let dailySubjectCount = 0;
+      for (let i = 0; i < dailyTimeSlots.length; i++) {
+        let subject = "";
+
+        // Fill slots with core subjects, cycling them
+        if (dailySubjectCount < coreSubjectsPerDay && dailyTimeSlots[i].indexOf("বিরতি") === -1 &&
+            !dailyTimeSlots[i].includes("রিভিশন") && !dailyTimeSlots[i].includes("এক্সট্রা কারিকুলার") &&
+            !dailyTimeSlots[i].includes("প্রশ্নপত্র সমাধান") && !dailyTimeSlots[i].includes("ফ্রি / সেল্ফ স্টাডি")) {
+          subject = subjects[subjectIndex % subjects.length];
+          subjectIndex++;
+          dailySubjectCount++;
+        } else {
+          // Assign fixed slots for breaks, revision, etc.
+          if (dailyTimeSlots[i].includes("বিরতি")) {
+            subject = dailyTimeSlots[i].replace(/.*\((.*)\)/, "$1"); // Extract content in parenthesis
+          } else if (dailyTimeSlots[i].includes("রিভিশন")) {
+            subject = "রিভিশন / হোমওয়ার্ক";
+          } else if (dailyTimeSlots[i].includes("এক্সট্রা কারিকুলার")) {
+            subject = "এক্সট্রা কারিকুলার";
+          } else if (dailyTimeSlots[i].includes("প্রশ্নপত্র সমাধান")) {
+            subject = "প্রশ্নপত্র সমাধান";
+          } else {
+            subject = "সাধারণ পড়াশোনা"; // Fallback for any unassigned subject slots
+          }
+        }
+
+        routine[day].push({
+          time: dailyTimeSlots[i],
+          subject: subject
+        });
+      }
+    });
+    return routine;
+  };
+
+
+  const classSelect = document.getElementById("classSelect");
+  const routineBody = document.getElementById("routineBody");
+  const saveBtn = document.getElementById("saveBtn");
+  const addRowBtn = document.getElementById("addRowBtn");
+  const saveImageBtn = document.getElementById("saveImageBtn"); // New button
+  const daySelectionDiv = document.getElementById("daySelection");
+  const routineEditorContainer = document.querySelector('.container.routine-editor'); // Target for html2canvas
+
+  let selectedClass = classSelect.value;
+  let selectedDay = daysOfWeek[0]; // Default to Saturday
+
+  // Function to initialize routines from localStorage or with defaults
+  function initializeRoutines() {
+    for (let i = 6; i <= 10; i++) {
+      const savedClassRoutine = localStorage.getItem("routine_class_" + i);
+      if (savedClassRoutine) {
+        routines[i] = JSON.parse(savedClassRoutine);
+      } else {
+        routines[i] = generateDefaultRoutineForClass(i);
+      }
+    }
+  }
+
+  // Function: রুটিন টেবিল লোড
+  function loadRoutine(classNum, day) {
+    routineBody.innerHTML = "";
+    const routineList = routines[classNum][day] || [];
+
+    if (routineList.length === 0) {
+        // If no routine for the day, add a default empty row
+        addRow(false); // Add one row without saving immediately
+        return;
+    }
+
+    routineList.forEach((slot) => {
+      const tr = document.createElement("tr");
+
+      // সময় কলাম (Editable)
+      const timeTd = document.createElement("td");
+      const timeInput = document.createElement("input");
+      timeInput.type = "text";
+      timeInput.value = slot.time;
+      timeInput.placeholder = "সময়";
+      timeTd.appendChild(timeInput);
+      tr.appendChild(timeTd);
+
+      // বিষয় ইনপুট ফিল্ড কলাম (Editable)
+      const subjectTd = document.createElement("td");
+      const subjectInput = document.createElement("input");
+      subjectInput.type = "text";
+      subjectInput.value = slot.subject;
+      subjectInput.placeholder = "বিষয়";
+      subjectTd.appendChild(subjectInput);
+      tr.appendChild(subjectTd);
+
+      // Remove button column
+      const removeTd = document.createElement("td");
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "মুছুন";
+      removeBtn.classList.add("remove-row-btn");
+      removeBtn.onclick = (event) => removeRow(event.target);
+      removeTd.appendChild(removeBtn);
+      tr.appendChild(removeTd);
+
+      routineBody.appendChild(tr);
+    });
+  }
+
+  // Function to add a new row to the routine table
+  function addRow(shouldSave = true) {
+    const tr = document.createElement("tr");
+
+    const timeTd = document.createElement("td");
+    const timeInput = document.createElement("input");
+    timeInput.type = "text";
+    timeInput.value = "";
+    timeInput.placeholder = "সময়";
+    timeTd.appendChild(timeInput);
+    tr.appendChild(timeTd);
+
+    const subjectTd = document.createElement("td");
+    const subjectInput = document.createElement("input");
+    subjectInput.type = "text";
+    subjectInput.value = "";
+    subjectInput.placeholder = "বিষয়";
+    subjectTd.appendChild(subjectInput);
+    tr.appendChild(subjectTd);
+
+    const removeTd = document.createElement("td");
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "মুছুন";
+    removeBtn.classList.add("remove-row-btn");
+    removeBtn.onclick = (event) => removeRow(event.target);
+    removeTd.appendChild(removeBtn);
+    tr.appendChild(removeTd);
+
+    routineBody.appendChild(tr);
+
+    if (shouldSave) {
+        saveRoutine(); // Save immediately after adding a row
+        showMessage("নতুন রো যোগ করা হয়েছে।");
+    }
+  }
+
+  // Function to remove a row from the routine table
+  function removeRow(buttonElement) {
+    const row = buttonElement.closest('tr');
+    if (row) {
+      row.remove();
+      saveRoutine(); // Save after removing a row
+      showMessage("রো মুছে ফেলা হয়েছে।");
+    }
+  }
+
+  // Function to save the current routine to localStorage
+  function saveRoutine() {
+    const inputs = routineBody.querySelectorAll("tr");
+    const updatedRoutine = [];
+
+    inputs.forEach((tr) => {
+      const timeInput = tr.querySelector("td:nth-child(1) input");
+      const subjectInput = tr.querySelector("td:nth-child(2) input");
+      updatedRoutine.push({
+        time: timeInput ? timeInput.value.trim() : "",
+        subject: subjectInput ? subjectInput.value.trim() : "",
+      });
+    });
+
+    routines[selectedClass][selectedDay] = updatedRoutine;
+    localStorage.setItem("routine_class_" + selectedClass, JSON.stringify(routines[selectedClass]));
+    showMessage("রুটিন সফলভাবে সেভ হয়েছে!");
+  }
+
+  // Function to save the routine as an image
+  async function saveRoutineAsImage() {
+    showMessage("ছবি তৈরি হচ্ছে...", false); // Show a loading message
+    try {
+      // Temporarily hide action buttons and input borders for cleaner image
+      const actionButtonsDiv = document.querySelector('.action-buttons');
+      actionButtonsDiv.style.display = 'none';
+      document.querySelectorAll('input[type="text"]').forEach(input => {
+          input.style.border = 'none';
+          input.style.boxShadow = 'none';
+      });
+      document.querySelectorAll('.remove-row-btn').forEach(btn => btn.style.display = 'none');
+
+
+      const canvas = await html2canvas(routineEditorContainer, {
+        scale: 2, // Increase scale for better quality
+        useCORS: true, // Important if images (like logo) are from different origin
+        logging: false, // Disable logging for cleaner console
+        backgroundColor: '#f5f7fa' // Match body background
+      });
+
+      // Restore original styles
+      actionButtonsDiv.style.display = 'flex';
+      document.querySelectorAll('input[type="text"]').forEach(input => {
+          input.style.border = ''; /* Reset to default CSS */
+          input.style.boxShadow = ''; /* Reset to default CSS */
+      });
+      document.querySelectorAll('.remove-row-btn').forEach(btn => btn.style.display = 'block');
+
+
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `শিখো_রুটিন_ক্লাস_${selectedClass}_${selectedDay}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showMessage("রুটিন ছবি হিসেবে সেভ হয়েছে!");
+    } catch (error) {
+      console.error("Error saving routine as image:", error);
+      showMessage("ছবি সেভ করতে সমস্যা হয়েছে।", true);
+    }
+  }
+
+
+  // Populate day selection buttons
+  function populateDaySelection() {
+    daySelectionDiv.innerHTML = "";
+    daysOfWeek.forEach(day => {
+      const button = document.createElement("button");
+      button.textContent = day;
+      button.onclick = () => selectDay(button, day);
+      if (day === selectedDay) {
+        button.classList.add("active");
+      }
+      daySelectionDiv.appendChild(button);
+    });
+  }
+
+  // Handle day selection
+  function selectDay(button, day) {
+    document.querySelectorAll('.day-selection button').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+    selectedDay = day;
+    loadRoutine(selectedClass, selectedDay);
+  }
+
+  // Event Listeners for Routine Editor
+  classSelect.addEventListener("change", () => {
+    selectedClass = classSelect.value;
+    loadRoutine(selectedClass, selectedDay);
+  });
+
+  saveBtn.addEventListener("click", saveRoutine);
+  addRowBtn.addEventListener("click", addRow);
+  saveImageBtn.addEventListener("click", saveRoutineAsImage); // New event listener
+
+  // Initial load for Routine Editor
+  window.addEventListener("load", () => {
+    initializeRoutines();
+    populateDaySelection();
+    loadRoutine(selectedClass, selectedDay);
+  });
+
+
+  // --- Doubt Solver Script ---
+  let selectedSubject = "";
+  let base64Image = null; // To store the base64 image data
+  const loadingSpinner = document.getElementById('loadingSpinner');
+  const imageUploadInput = document.getElementById('imageUpload');
+  const imagePreview = document.getElementById('imagePreview');
+  const removeImageBtn = document.getElementById('removeImageBtn');
+  const chatHistoryDiv = document.getElementById('chatHistory');
+  const newQuestionBtn = document.getElementById('newQuestionBtn'); // New button
+
+  function selectSubject(btn) {
+    document.querySelectorAll('.subjects button').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedSubject = btn.innerText;
+  }
+
+  // Image upload handler
+  imageUploadInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = 'block';
+        removeImageBtn.style.display = 'inline-block';
+        base64Image = e.target.result.split(',')[1]; // Get base64 part
+      };
+      reader.readAsDataURL(file);
+    } else {
+      clearImagePreview();
+    }
+  });
+
+  // Remove image handler
+  removeImageBtn.addEventListener('click', clearImagePreview);
+
+  function clearImagePreview() {
+    imageUploadInput.value = ''; // Clear file input
+    imagePreview.src = '#';
+    imagePreview.style.display = 'none';
+    removeImageBtn.style.display = 'none';
+    base64Image = null;
+  }
+
+  // Function to clear all doubt solver inputs and response
+  function clearDoubtSolverInputs() {
+    document.getElementById("question").value = '';
+    clearImagePreview();
+    document.getElementById("responseBox").innerHTML = '';
+    document.getElementById("responseBox").style.display = 'none';
+    newQuestionBtn.style.display = 'none'; // Hide "Ask New Question" button
+    document.querySelectorAll('.subjects button').forEach(b => b.classList.remove('selected')); // Deselect subject
+    selectedSubject = ""; // Clear selected subject
+  }
+
+  // Event listener for "Ask New Question" button
+  newQuestionBtn.addEventListener('click', clearDoubtSolverInputs);
+
+
+  // Function to save doubt history to Local Storage
+  function saveDoubtToHistoryLocal(subject, question, image, response) {
+    let history = JSON.parse(localStorage.getItem('doubt_history') || '[]');
+    history.unshift({ // Add to the beginning for latest first
+      timestamp: new Date().toISOString(), // Use ISO string for consistent sorting
+      subject: subject,
+      question: question,
+      imageData: image,
+      response: response
+    });
+    // Keep history size manageable, e.g., last 50 entries
+    if (history.length > 50) {
+        history = history.slice(0, 50);
+    }
+    localStorage.setItem('doubt_history', JSON.stringify(history));
+    loadDoubtHistory(); // Reload history to update UI
+  }
+
+  // Function to load doubt history from Local Storage
+  function loadDoubtHistory() {
+    chatHistoryDiv.innerHTML = ''; // Clear previous history
+    let history = JSON.parse(localStorage.getItem('doubt_history') || '[]');
+
+    if (history.length === 0) {
+      chatHistoryDiv.innerHTML = '<p style="text-align: center; color: #888;">কোনো ইতিহাস নেই।</p>';
+      return;
+    }
+
+    history.forEach((item) => {
+      const itemHtml = `
+        <div class="chat-history-item user-message">
+          <div class="subject-info">বিষয়: ${item.subject}</div>
+          <p><strong>প্রশ্ন:</strong> ${item.question}</p>
+          ${item.imageData ? `<img src="data:image/png;base64,${item.imageData}" alt="User Image">` : ''}
+          <div class="timestamp">${new Date(item.timestamp).toLocaleString('bn-BD')}</div>
+        </div>
+        <div class="chat-history-item ai-response">
+          <p><strong>উত্তর:</strong> ${marked.parse(item.response)}</p>
+        </div>
+      `;
+      chatHistoryDiv.innerHTML += itemHtml;
+    });
+    // Scroll to top to show latest messages
+    chatHistoryDiv.scrollTop = 0;
+  }
+
+  async function askDoubt() {
+    const question = document.getElementById("question").value;
+    const responseBox = document.getElementById("responseBox");
+
+    if (!question && !base64Image) { // Allow either text or image
+      showMessage("দয়া করে একটি সাবজেক্ট এবং প্রশ্ন লিখুন অথবা একটি ছবি আপলোড করুন।", true);
+      responseBox.style.display = 'none';
+      return;
+    }
+    if (!selectedSubject) {
+        showMessage("দয়া করে একটি সাবজেক্ট নির্বাচন করুন।", true);
+        responseBox.style.display = 'none';
+        return;
+    }
+
+    responseBox.style.display = 'none';
+    loadingSpinner.style.display = 'block';
+    newQuestionBtn.style.display = 'none'; // Hide "Ask New Question" button during new query
+
+    let chatHistory = [];
+    // Construct parts for the Gemini API request
+    const parts = [];
+    if (question) {
+      parts.push({ text: `বিষয়: ${selectedSubject}\nপ্রশ্ন: ${question}` });
+    }
+    if (base64Image) {
+      parts.push({
+        inlineData: {
+          mimeType: "image/png", // Assuming PNG, adjust if needed
+          data: base64Image
+        }
+      });
+    }
+    chatHistory.push({ role: "user", parts: parts });
+
+
+    const payload = { contents: chatHistory };
+
+    try {
+      const apiKey = "AIzaSyDVdti41rOyMb_27uvJe-4KpLCxUiBkJWc";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("API Error Response:", errorData);
+        // Specific error message for API failure
+        showMessage(`আমার মাথা হ্যাং হয়ে গেছে, দুঃখিত, এআই এখন কাজ করছে না। সমস্যা: ${errorData.error.message || 'অজানা ত্রুটি'}`, true);
+        throw new Error(`API request failed with status ${res.status}: ${errorData.error.message || 'Unknown error'}`);
+      }
+
+      const data = await res.json();
+      let output = data.candidates?.[0]?.content?.parts?.[0]?.text || "উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।";
+
+      // Add emojis to the output for attractiveness (example logic)
+      output = output.replace(/গণিত/g, 'গণিত ➕');
+      output = output.replace(/পদার্থবিজ্ঞান/g, 'পদার্থবিজ্ঞান ⚛️');
+      output = output.replace(/রসায়ন/g, 'রসায়ন 🧪');
+      output = output.replace(/জীববিজ্ঞান/g, 'জীববিজ্ঞান 🌿');
+      output = output.replace(/ইংরেজি/g, 'ইংরেজি 📚');
+      output = output.replace(/সমাধান/g, 'সমাধান ✅');
+      output = output.replace(/ধাপ/g, 'ধাপ 📝');
+      output = output.replace(/গুরুত্বপূর্ণ/g, 'গুরুত্বপূর্ণ ✨');
+      output = output.replace(/উদাহরণ/g, 'উদাহরণ 💡');
+      output = output.replace(/বুঝতে/g, 'বুঝতে 🤔');
+
+
+      responseBox.innerHTML = marked.parse(output);
+      responseBox.style.display = 'block';
+      newQuestionBtn.style.display = 'block'; // Show "Ask New Question" button
+
+      // Save to Local Storage after successful response
+      saveDoubtToHistoryLocal(selectedSubject, question, base64Image, output);
+
+      // Clear input fields and image preview after successful submission
+      document.getElementById("question").value = '';
+      clearImagePreview();
+
+    } catch (error) {
+      console.error("Error fetching data from Gemini API:", error);
+      // Already showed specific error message above, just ensure response box is updated
+      responseBox.innerHTML = `উত্তর পেতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।`;
+      responseBox.style.display = 'block';
+      newQuestionBtn.style.display = 'block'; // Show "Ask New Question" button even on error
+    } finally {
+      loadingSpinner.style.display = 'none';
+    }
+  }
+
+  // --- Section Navigation Script ---
+  const routineEditorSection = document.getElementById('routineEditorSection');
+  const doubtSolverSection = document.getElementById('doubtSolverSection');
+  const routineEditorNavBtn = document.getElementById('routineEditorNavBtn');
+  const doubtSolverNavBtn = document.getElementById('doubtSolverNavBtn');
+
+  function showSection(sectionId) {
+    // Hide all sections
+    routineEditorSection.style.display = 'none';
+    doubtSolverSection.style.display = 'none';
+
+    // Remove active class from all nav buttons
+    routineEditorNavBtn.classList.remove('active');
+    doubtSolverNavBtn.classList.remove('active');
+
+    // Show the selected section and activate its button
+    if (sectionId === 'routineEditorSection') {
+      routineEditorSection.style.display = 'block';
+      routineEditorNavBtn.classList.add('active');
+    } else if (sectionId === 'doubtSolverSection') {
+      doubtSolverSection.style.display = 'block';
+      doubtSolverNavBtn.classList.add('active');
+      // Load history when doubt solver section is shown
+      loadDoubtHistory();
+    }
+  }
+
+  // --- Menu and Modal Script ---
+  // Get elements
+  const threeDotMenuBtn = document.getElementById('threeDotMenuBtn');
+  const dropdownMenu = document.getElementById('dropdownMenu');
+  const infoModal = document.getElementById('infoModal');
+  const closeModalBtn = document.querySelector('.close-modal-btn');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const menuItems = document.querySelectorAll('.dropdown-menu .menu-item');
+
+  // Toggle dropdown menu visibility
+  threeDotMenuBtn.addEventListener('click', (event) => {
+    dropdownMenu.classList.toggle('show');
+    event.stopPropagation(); // Prevent document click from closing it immediately
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!dropdownMenu.contains(event.target) && !threeDotMenuBtn.contains(event.target)) {
+      dropdownMenu.classList.remove('show');
+    }
+  });
+
+  // Handle menu item clicks
+  menuItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const contentType = item.dataset.content;
+      dropdownMenu.classList.remove('show'); // Close dropdown
+      displayModalContent(contentType);
+    });
+  });
+
+  // Close modal
+  closeModalBtn.addEventListener('click', () => {
+    infoModal.style.display = 'none';
+    // Remove rainbow effect when modal is closed
+    const ownerInfoPanel = document.getElementById('ownerInfoPanel'); // Get by ID
+    if (ownerInfoPanel) {
+      ownerInfoPanel.classList.remove('rainbow-effect');
+    }
+  });
+
+  // Close modal when clicking outside content
+  infoModal.addEventListener('click', (event) => {
+    if (event.target === infoModal) {
+      infoModal.style.display = 'none';
+      // Remove rainbow effect when modal is closed by clicking outside
+      const ownerInfoPanel = document.getElementById('ownerInfoPanel'); // Get by ID
+      if (ownerInfoPanel) {
+        ownerInfoPanel.classList.remove('rainbow-effect');
+      }
+    }
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && infoModal.style.display === 'flex') {
+      infoModal.style.display = 'none';
+      // Remove rainbow effect when modal is closed by escape key
+      const ownerInfoPanel = document.getElementById('ownerInfoPanel'); // Get by ID
+      if (ownerInfoPanel) {
+        ownerInfoPanel.classList.remove('rainbow-effect');
+      }
+    }
+  });
+
+  // Function to display modal content
+  function displayModalContent(type) {
+    modalBody.innerHTML = ''; // Clear previous content
+    modalTitle.textContent = ''; // Clear previous title
+
+    if (type === 'about') {
+      modalTitle.textContent = 'About Shikho Routine Editor';
+      modalBody.innerHTML = `
+        <p>এই রুটিন এডিটরটি শিক্ষার্থীদের জন্য একটি সহজ এবং কার্যকরী টুল, যা তাদের দৈনন্দিন পড়াশোনার রুটিন তৈরি ও ব্যবস্থাপনায় সাহায্য করে। এখানে আপনি আপনার ক্লাস অনুযায়ী বিষয়ভিত্তিক রুটিন তৈরি করতে পারবেন, সময়সূচী পরিবর্তন করতে পারবেন এবং প্রয়োজনে ছবি আকারে সেভ করতে পারবেন।</p>
+        <p>আমাদের লক্ষ্য হলো শিক্ষার্থীদের পড়াশোনার জীবনকে আরও সুসংগঠিত ও উৎপাদনশীল করে তোলা।</p>
+      `;
+      // Ensure rainbow effect is off for other modals
+      const ownerInfoPanel = document.getElementById('ownerInfoPanel');
+      if (ownerInfoPanel) {
+        ownerInfoPanel.classList.remove('rainbow-effect');
+      }
+    } else if (type === 'how-to-use') {
+      modalTitle.textContent = 'How to Use';
+      modalBody.innerHTML = `
+        <p>এই রুটিন এডিটর ব্যবহার করা খুবই সহজ:</p>
+        <ol>
+          <li><strong>ক্লাস নির্বাচন করুন:</strong> উপরের ড্রপডাউন মেনু থেকে আপনার ক্লাস নির্বাচন করুন।</li>
+          <li><strong>দিন নির্বাচন করুন:</strong> সপ্তাহের যে দিনের রুটিন দেখতে বা এডিট করতে চান, সেই দিনের বাটনে ক্লিক করুন।</li>
+          <li><strong>সময় ও বিষয় পরিবর্তন:</strong> টেবিলের "সময়" এবং "বিষয়" কলামে ক্লিক করে সরাসরি এডিট করতে পারবেন।</li>
+          <li><strong>নতুন রো যোগ করুন:</strong> "নতুন রো যোগ করুন" বাটনে ক্লিক করে রুটিনে নতুন সময়সূচী যোগ করতে পারবেন।</li>
+          <li><strong>রো মুছুন:</strong> প্রতিটি রো এর ডানপাশে থাকা "মুছুন" বাটনে ক্লিক করে যেকোনো রো ডিলিট করতে পারবেন।</li>
+          <li><strong>সেভ করুন:</strong> "সেভ করুন" বাটনে ক্লিক করে আপনার পরিবর্তনগুলো লোকাল স্টোরেজে সেভ করুন।</li>
+          <li><strong>ছবি হিসেবে সেভ করুন:</strong> "রুটিন ছবি হিসেবে সেভ করুন" বাটনে ক্লিক করে রুটিনটিকে একটি PNG ছবি হিসেবে ডাউনলোড করতে পারবেন।</li>
+          <li><strong>ডাউট সলভার:</strong> "ডাউট সলভার" ট্যাবে ক্লিক করে আপনার পড়াশোনার যেকোনো সমস্যা এআই এর সাহায্যে সমাধান করতে পারবেন।</li>
+        </ol>
+      `;
+      // Ensure rainbow effect is off for other modals
+      const ownerInfoPanel = document.getElementById('ownerInfoPanel');
+      if (ownerInfoPanel) {
+        ownerInfoPanel.classList.remove('rainbow-effect');
+      }
+    } else if (type === 'owner-info') {
+      modalTitle.textContent = 'Owner Information';
+      modalBody.innerHTML = `
+        <img src="https://i.postimg.cc/5tTD0jGg/IMG-20250203-WA0098-1.jpg" alt="Owner's Photo">
+        <div id="ownerInfoPanel" class="owner-info-panel">
+          <p class="panel-title">🚀 𝐎𝐑𝐈𝐎𝐍𝐄𝐗 • 𝐎𝐖𝐍𝐄𝐑 𝐈𝐍𝐅𝐎</p>
+          <p class="section-title">👑 𝐎𝐖𝐍𝐄𝐑 𝐃𝐄𝐓𝐀𝐈𝐋𝐒</p>
+          <div class="separator"></div>
+          <p class="detail-line"><span class="detail-label">🧠 𝐍𝐚𝐦𝐞:</span> 𝐀𝐛𝐢𝐝 𝐇𝐚𝐬𝐚𝐧 𝐎𝐫𝐢𝐨𝐧</p>
+          <p class="detail-line"><span class="detail-label">🎂 𝐀𝐠𝐞:</span> 𝟏𝟓 𝐘𝐞𝐚𝐫𝐬</p>
+          <p class="detail-line"><span class="detail-label">📞 𝐂𝐨𝐧𝐭𝐚𝐜𝐭:</span> <a href="https://wa.me/8801334741473" target="_blank">https://wa.me/8801334741473</a></p>
+          <p class="detail-line"><span class="detail-label">🌐 𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤:</span> <a href="https://www.facebook.com/profile.php?id=61550829616713" target="_blank">https://www.facebook.com/profile.php?id=61550829616713</a></p>
+          <div class="separator"></div>
+          <p class="powered-by">⚡ 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐎𝐑𝐈𝐎𝐍𝐄𝐗</p>
+        </div>
+      `;
+      // Immediately apply rainbow effect when owner-info modal is opened
+      // Use setTimeout to ensure the element is rendered before applying class
+      setTimeout(() => {
+        const ownerInfoPanel = document.getElementById('ownerInfoPanel');
+        if (ownerInfoPanel) {
+          ownerInfoPanel.classList.add('rainbow-effect');
+        }
+      }, 100); // Small delay to ensure DOM update
+    }
+    infoModal.style.display = 'flex'; // Show modal
+  }
+
+  // Initial section display on load
+  window.addEventListener("load", () => {
+    showSection('routineEditorSection'); // Show routine editor by default
+  });
+</script>
+</body>
+</html>
