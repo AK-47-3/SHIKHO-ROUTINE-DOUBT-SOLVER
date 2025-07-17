@@ -1,67 +1,1325 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ORIONEX | আপডেট চলছে</title>
-  <style>
-    body {
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: #ffffff;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      color: #00ffd5;
-    }
-    p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: 10px 0;
-    }
-    .logo {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #00ff88;
-      margin-bottom: 20px;
-    }
-    .footer {
-      margin-top: 30px;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
-    .gear {
-      font-size: 3rem;
-      animation: spin 3s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Game Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (for React, but we'll use inline SVGs or similar for vanilla JS) -->
+    <!-- For simplicity, we'll use inline SVGs or basic text for icons if Lucide JS library is too complex to integrate directly without React -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0D1117;
+            color: #fff;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Background grid pattern */
+        .grid-background {
+            background-image: linear-gradient(to right, #8080800a 1px, transparent 1px),
+                              linear-gradient(to bottom, #8080800a 1px, transparent 1px);
+            background-size: 14px 24px;
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px; /* For horizontal scrollbars */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a202c; /* Darker track */
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* Greyish thumb */
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* Lighter grey on hover */
+        }
+
+        /* Hide scrollbar for specific elements if needed */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Basic modal backdrop animation */
+        .modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        /* Message/Alert animation */
+        .message-box {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen bg-[#0D1117] text-white font-sans">
+    <!-- Background Elements -->
+    <div class="fixed inset-0 -z-10 h-full w-full grid-background">
+        <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-cyan-400 opacity-20 blur-[100px]"></div>
+    </div>
 
-  <div class="logo">🔧 ORIONEX</div>
+    <!-- Custom Message/Alert Display -->
+    <div id="message-container" class="fixed top-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 hidden message-box">
+        <span id="message-icon"></span>
+        <span id="message-text"></span>
+    </div>
 
-  <div class="gear">⚙️</div>
+    <div class="relative p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <!-- Main Menu Button -->
+        <div class="absolute top-4 left-4 z-30">
+            <button id="main-menu-button" class="bg-gray-800/70 p-3 rounded-full text-gray-300 hover:text-white hover:bg-gray-700/80 transition-all duration-200 shadow-lg">
+                <!-- MoreVertical icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+            <div id="main-menu-dropdown" class="absolute top-14 left-0 bg-gray-900/90 backdrop-blur-md rounded-lg shadow-xl border border-white/10 py-2 w-48 hidden">
+                <button id="admin-panel-button" class="flex items-center gap-2 w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700/50">
+                    <!-- Lock icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Admin Panel
+                </button>
+                <button data-page-id="contact" data-page-title="Contact" class="static-page-button flex items-center gap-2 w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700/50">
+                    <!-- Mail icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Contact
+                </button>
+                <button data-page-id="about" data-page-title="About Us" class="static-page-button flex items-center gap-2 w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700/50">
+                    <!-- Info icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> About Us
+                </button>
+                <button data-page-id="howToUse" data-page-title="How To Use" class="static-page-button flex items-center gap-2 w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700/50">
+                    <!-- BookOpen icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> How To Use
+                </button>
+            </div>
+        </div>
 
-  <h1>ওয়েবসাইট হালনাগাদের পথে</h1>
+        <header class="text-center py-8 md:py-12">
+            <h1 class="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 mb-4">
+                Cosmic Game Hub
+            </h1>
+            <p class="text-gray-400 max-w-2xl mx-auto">
+                Discover, play, and share indie games from across the universe. Your next adventure awaits.
+            </p>
+            <p id="user-id-display" class="text-gray-500 mt-4 text-sm hidden">
+                Your User ID: <span class="font-mono text-gray-400 break-all" id="user-id-value"></span>
+            </p>
+        </header>
 
-  <p>আমরা আন্তরিকভাবে দুঃখিত। সাময়িক অসুবিধার জন্য ক্ষমা প্রার্থনা করছি।</p>
-  <p>আমাদের ওয়েবসাইট <strong>ORIONEX</strong> কে আরও আধুনিক, স্মার্ট এবং ব্যবহারবান্ধব করে গড়ে তুলতে আপডেটের কাজ চলছে।</p>
-  <p>অনুগ্রহ করে আমাদের সাথে থাকুন — আমরা খুব শীঘ্রই ফিরছি নতুন রূপে, নতুন অভিজ্ঞতা নিয়ে।আর কালকে আমি ভোট নিবো কি কি ফিচার অ্যাড হলে ভালো হয় বিকেল 4 টা থেকে রাত 10 তার ভিতর ওকে বা bye</p>
+        <!-- Featured Games Carousel -->
+        <div id="featured-games-section" class="mb-12 hidden">
+            <h2 class="flex items-center gap-3 text-2xl font-bold text-purple-300 mb-4">
+                <!-- Star icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Featured Games
+            </h2>
+            <div class="relative">
+                <div id="featured-games-carousel" class="flex overflow-x-auto space-x-6 pb-4 scrollbar-hide">
+                    <!-- Featured Game Cards will be injected here by JS -->
+                </div>
+            </div>
+        </div>
 
-  <div class="footer">— ORIONEX টিম</div>
+        <!-- Controls: Search, Filter, Upload -->
+        <div class="sticky top-4 z-20 p-4 bg-gray-900/50 backdrop-blur-md rounded-2xl border border-white/10 mb-8">
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="relative flex-grow w-full">
+                    <!-- Search icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="search-input" placeholder="Search games..." class="w-full bg-gray-800/50 border border-transparent rounded-lg pl-12 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"/>
+                </div>
+                <button id="upload-button" class="w-full md:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold py-3 px-6 rounded-lg hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 transform hover:scale-105">
+                    <!-- Upload icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg> Upload
+                </button>
+            </div>
+            <div id="genre-filters" class="flex flex-wrap gap-2 mt-4 hidden">
+                <!-- Genre buttons will be injected here by JS -->
+            </div>
+        </div>
 
+        <!-- Game Grid -->
+        <main>
+            <div id="game-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Game Cards will be injected here by JS -->
+            </div>
+            <div id="no-games-found" class="text-center py-20 bg-black/20 rounded-2xl col-span-full hidden">
+                <!-- Sparkles icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles mx-auto text-gray-500 mb-4"><path d="M9.9 10.9c.32-.32.55-.74.67-1.24.12-.51.1-1.05-.05-1.55-.15-.5-.4-1-.77-1.39-.37-.39-.85-.7-1.39-.77-.5-.05-1.04-.07-1.55-.05-.5.02-1.01.15-1.4.37-.39.22-.72.54-.95.95-.23.4-.36.9-.37 1.4-.02.51 0 1.05.15 1.55.15.5.4.92.77 1.3.37.39.85.7 1.39.77.5.05 1.04.07 1.55.05.5-.02 1.01-.15 1.4-.37.39-.22.72-.54.95-.95Zm3.6 3.6c.32-.32.55-.74.67-1.24.12-.51.1-1.05-.05-1.55-.15-.5-.4-1-.77-1.39-.37-.39-.85-.7-1.39-.77-.5-.05-1.04-.07-1.55-.05-.5.02-1.01.15-1.4.37-.39.22-.72.54-.95.95-.23.4-.36.9-.37 1.4-.02.51 0 1.05.15 1.55.15.5.4.92.77 1.3.37.39.85.7 1.39.77.5.05 1.04.07 1.55.05.5-.02 1.01-.15 1.4-.37.39-.22.72-.54.95-.95ZM20 3c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1.4-.6ZM3 20c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1.4-.6ZM20 20c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1-1.4ZM3 3c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1.4-.6Z"/></svg>
+                <h3 class="text-2xl font-semibold text-gray-300">No Approved Games Found</h3>
+                <p class="text-gray-500 mt-2">Try uploading a game or check back later for new approvals.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals (Initially hidden) -->
+    <div id="modals-container">
+        <!-- Upload Modal -->
+        <div id="upload-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden modal-backdrop">
+            <div class="bg-gray-900/70 border border-cyan-400/30 backdrop-blur-xl rounded-2xl p-8 w-full max-w-lg shadow-2xl shadow-cyan-500/10 modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-cyan-300">🎮 Upload Your Game</h2>
+                    <button class="modal-close-button text-gray-400 hover:text-white" data-modal="upload-modal">
+                        <!-- X icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div id="upload-error-message" class="text-red-400 bg-red-500/10 p-2 rounded-md mb-4 text-sm flex items-center gap-2 hidden">
+                    <!-- AlertCircle icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span class="error-text"></span>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label for="new-game-name" class="text-sm font-medium text-cyan-200/80 mb-1 block">Game Name</label>
+                        <input type="text" id="new-game-name" placeholder="e.g., Cyber Drift" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                    </div>
+                    <div>
+                        <label for="new-game-image" class="text-sm font-medium text-cyan-200/80 mb-1 block">Image URL (Cover)</label>
+                        <input type="text" id="new-game-image" placeholder="https://example.com/image.jpg" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="new-game-price" class="text-sm font-medium text-cyan-200/80 mb-1 block">Play Fee</label>
+                            <input type="text" id="new-game-price" placeholder="e.g., $4.99 or Free" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                        </div>
+                        <div>
+                            <label for="new-game-genre" class="text-sm font-medium text-cyan-200/80 mb-1 block">Genre</label>
+                            <input type="text" id="new-game-genre" placeholder="e.g., RPG, Shooter" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="new-game-html-content" class="text-sm font-medium text-cyan-200/80 mb-1 block">Game HTML Content (Optional)</label>
+                        <textarea id="new-game-html-content" placeholder="Paste your full game HTML code here (including <style> and <script> tags)..." class="w-full h-32 bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all font-mono text-xs"></textarea>
+                        <p class="text-gray-500 text-xs mt-1">Leave blank if providing an external link.</p>
+                    </div>
+                    <div>
+                        <label for="new-game-link" class="text-sm font-medium text-cyan-200/80 mb-1 block">Game Link (External URL - Optional)</label>
+                        <input type="url" id="new-game-link" placeholder="https://yourgame.com/play" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                        <p class="text-gray-500 text-xs mt-1">Leave blank if providing HTML content. HTML content takes precedence.</p>
+                    </div>
+                </div>
+                <button id="upload-game-submit" class="mt-6 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold py-3 px-4 rounded-lg hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed">
+                    <!-- Upload icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg> <span id="upload-button-text">Upload & Share</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Detail Modal -->
+        <div id="game-detail-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden modal-backdrop">
+            <div class="relative bg-gray-900/70 border border-purple-500/30 backdrop-blur-xl rounded-2xl w-full max-w-4xl h-[90vh] shadow-2xl shadow-purple-500/10 overflow-hidden flex flex-col modal-content">
+                <div class="absolute top-0 right-0 p-4 z-10">
+                    <button class="modal-close-button bg-black/50 rounded-full p-2 text-gray-300 hover:text-white transition-colors" data-modal="game-detail-modal">
+                        <!-- X icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div class="p-6 bg-gray-800/50 border-b border-gray-700">
+                    <h2 id="game-detail-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 mb-2"></h2>
+                    <div class="flex gap-4 items-center">
+                        <span id="game-detail-price" class="text-lg font-semibold text-cyan-300"></span>
+                        <span id="game-detail-genre" class="text-sm font-semibold text-purple-300 bg-purple-500/10 px-3 py-1 rounded-full"></span>
+                        <span id="game-detail-uploaded-by" class="text-xs text-gray-400 bg-gray-700/50 px-2 py-1 rounded-full hidden"></span>
+                        <span id="game-detail-pending-status" class="text-xs text-red-400 bg-red-500/10 px-2 py-1 rounded-full hidden">Pending Approval</span>
+                    </div>
+                </div>
+                <div id="game-play-area" class="flex-grow w-full bg-black/70 p-2 flex items-center justify-center">
+                    <!-- Game content (iframe or link) will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Login Modal -->
+        <div id="admin-login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden modal-backdrop">
+            <div class="bg-gray-900/70 border border-purple-400/30 backdrop-blur-xl rounded-2xl p-8 w-full max-w-sm shadow-2xl shadow-purple-500/10 modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-purple-300">Admin Login</h2>
+                    <button class="modal-close-button text-gray-400 hover:text-white" data-modal="admin-login-modal">
+                        <!-- X icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div id="admin-login-error-message" class="text-red-400 bg-red-500/10 p-2 rounded-md mb-4 text-sm flex items-center gap-2 hidden">
+                    <!-- AlertCircle icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span class="error-text"></span>
+                </div>
+                <form id="admin-login-form" class="space-y-4">
+                    <div>
+                        <label for="admin-password-input" class="block text-gray-300 text-sm font-medium mb-1">Password</label>
+                        <input type="password" id="admin-password-input" class="w-full p-3 rounded-lg bg-gray-800/50 text-white border border-gray-700 focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 transition duration-200" placeholder="Enter admin password" required />
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition duration-300 shadow-md transform hover:scale-105">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard Modal -->
+        <div id="admin-dashboard-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden modal-backdrop">
+            <div class="bg-gray-900/70 border border-cyan-400/30 backdrop-blur-xl rounded-2xl p-8 w-full max-w-5xl h-[90vh] overflow-y-auto shadow-2xl shadow-cyan-500/10 flex flex-col modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-cyan-300">Admin Dashboard</h2>
+                    <button class="modal-close-button text-gray-400 hover:text-white" data-modal="admin-dashboard-modal">
+                        <!-- X icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+
+                <div class="flex space-x-4 mb-6 overflow-x-auto pb-2">
+                    <button id="admin-view-pending" class="flex-shrink-0 px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white">Pending Games (<span id="pending-games-count">0</span>)</button>
+                    <button id="admin-view-all-games" class="flex-shrink-0 px-4 py-2 rounded-lg font-semibold bg-gray-700 text-gray-300">All Games (<span id="all-games-count">0</span>)</button>
+                    <button id="admin-view-add-game" class="flex-shrink-0 px-4 py-2 rounded-lg font-semibold bg-gray-700 text-gray-300">Add New Game</button>
+                    <button id="admin-view-static-pages" class="flex-shrink-0 px-4 py-2 rounded-lg font-semibold bg-gray-700 text-gray-300">Static Pages</button>
+                </div>
+
+                <div id="admin-content-area" class="flex-grow">
+                    <!-- Admin content (pending, all games, add/edit form, static pages) will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Static Page Modal -->
+        <div id="static-page-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden modal-backdrop">
+            <div class="bg-gray-900/70 border border-purple-400/30 backdrop-blur-xl rounded-2xl p-8 w-full max-w-3xl shadow-2xl shadow-purple-500/10 overflow-y-auto max-h-[90vh] modal-content">
+                <div class="relative mb-6">
+                    <h2 id="static-page-title" class="text-2xl font-bold text-purple-300 pr-10"></h2>
+                    <button class="modal-close-button absolute top-0 right-0 bg-black/50 rounded-full p-1 text-gray-300 hover:text-white transition-colors" data-modal="static-page-modal">
+                        <!-- X icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div id="static-page-content" class="prose prose-invert text-gray-300 max-w-none">
+                    <!-- Static page content will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, doc, deleteDoc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Global Variables (from Canvas environment or default) ---
+        // IMPORTANT: In a real deployment, these should be securely managed environment variables.
+        // For this HTML file, we'll use placeholder values if globals are not defined.
+        // When deploying to Vercel, you'd set these as environment variables in Vercel's dashboard.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyAlp81SMW-M5zWK6VS9tgFXDv7IGp_yK4c",
+            authDomain: "okhhhhh-c4055.firebaseapp.com",
+            projectId: "okhhhhh-c4055",
+            storageBucket: "okhhhhh-c4055.firebasestorage.app",
+            messagingSenderId: "505784498135",
+            appId: "1:505784498135:web:5c00d1a5d1fff5976cbd92",
+            measurementId: "G-LJBG788P2Q"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // --- Google Analytics Configuration ---
+        const GA_TRACKING_ID = 'G-LJBG788P2Q'; // Replace with your actual GA Measurement ID
+
+        // --- Admin Password (Hardcoded for demo purposes - REMOVE FOR PRODUCTION) ---
+        const ADMIN_PASSWORD = "ADMIN_ORIONEX"; // !!! SECURITY RISK !!!
+
+        // --- Firebase Initialization ---
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase initialized.");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            showMessage(`Firebase initialization failed: ${error.message}`, 'error');
+        }
+
+        // --- Global State Variables ---
+        let currentUserId = null;
+        let isAdminLoggedIn = false;
+        let gameList = [];
+        let filteredGames = [];
+        let pendingGames = [];
+        let allAdminGames = [];
+        let activeGenre = 'All';
+        let searchTerm = '';
+        let currentAdminView = 'pending'; // 'pending', 'all-games', 'add-game', 'edit-game', 'static-pages', 'edit-static-page'
+        let gameToEdit = null;
+        let staticPageToEdit = null;
+
+        // --- DOM Elements ---
+        const messageContainer = document.getElementById('message-container');
+        const messageText = document.getElementById('message-text');
+        const messageIcon = document.getElementById('message-icon');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const userIdValue = document.getElementById('user-id-value');
+        const featuredGamesSection = document.getElementById('featured-games-section');
+        const featuredGamesCarousel = document.getElementById('featured-games-carousel');
+        const searchInput = document.getElementById('search-input');
+        const uploadButton = document.getElementById('upload-button');
+        const genreFilters = document.getElementById('genre-filters');
+        const gameGrid = document.getElementById('game-grid');
+        const noGamesFound = document.getElementById('no-games-found');
+        const mainMenuButton = document.getElementById('main-menu-button');
+        const mainMenuDropdown = document.getElementById('main-menu-dropdown');
+        const adminPanelButton = document.getElementById('admin-panel-button');
+        const staticPageButtons = document.querySelectorAll('.static-page-button');
+
+        // Modals
+        const uploadModal = document.getElementById('upload-modal');
+        const gameDetailModal = document.getElementById('game-detail-modal');
+        const adminLoginModal = document.getElementById('admin-login-modal');
+        const adminDashboardModal = document.getElementById('admin-dashboard-modal');
+        const staticPageModal = document.getElementById('static-page-modal');
+        const allModalCloseButtons = document.querySelectorAll('.modal-close-button');
+
+        // Upload Modal Elements
+        const newGameNameInput = document.getElementById('new-game-name');
+        const newGameImageInput = document.getElementById('new-game-image');
+        const newGamePriceInput = document.getElementById('new-game-price');
+        const newGameGenreInput = document.getElementById('new-game-genre');
+        const newGameHtmlContentInput = document.getElementById('new-game-html-content');
+        const newGameLinkInput = document.getElementById('new-game-link');
+        const uploadGameSubmitButton = document.getElementById('upload-game-submit');
+        const uploadButtonText = document.getElementById('upload-button-text');
+        const uploadErrorMessage = document.getElementById('upload-error-message');
+        const uploadErrorText = uploadErrorMessage.querySelector('.error-text');
+
+        // Game Detail Modal Elements
+        const gameDetailName = document.getElementById('game-detail-name');
+        const gameDetailPrice = document.getElementById('game-detail-price');
+        const gameDetailGenre = document.getElementById('game-detail-genre');
+        const gameDetailUploadedBy = document.getElementById('game-detail-uploaded-by');
+        const gameDetailPendingStatus = document.getElementById('game-detail-pending-status');
+        const gamePlayArea = document.getElementById('game-play-area');
+
+        // Admin Login Modal Elements
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const adminPasswordInput = document.getElementById('admin-password-input');
+        const adminLoginErrorMessage = document.getElementById('admin-login-error-message');
+        const adminLoginErrorText = adminLoginErrorMessage.querySelector('.error-text');
+
+        // Admin Dashboard Modal Elements
+        const pendingGamesCount = document.getElementById('pending-games-count');
+        const allGamesCount = document.getElementById('all-games-count');
+        const adminViewPendingBtn = document.getElementById('admin-view-pending');
+        const adminViewAllGamesBtn = document.getElementById('admin-view-all-games');
+        const adminViewAddGameBtn = document.getElementById('admin-view-add-game');
+        const adminViewStaticPagesBtn = document.getElementById('admin-view-static-pages');
+        const adminContentArea = document.getElementById('admin-content-area');
+
+        // Static Page Modal Elements
+        const staticPageTitleElem = document.getElementById('static-page-title');
+        const staticPageContentElem = document.getElementById('static-page-content');
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a custom message/alert on the screen.
+         * @param {string} msg - The message text.
+         * @param {'info'|'success'|'error'|'warning'} type - Type of message for styling.
+         * @param {number} duration - How long the message stays visible in milliseconds.
+         */
+        function showMessage(msg, type = 'info', duration = 3000) {
+            messageText.textContent = msg;
+            messageContainer.className = `fixed top-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 message-box`;
+            messageContainer.classList.remove('hidden');
+
+            // Set background color based on type
+            if (type === 'success') {
+                messageContainer.classList.add('bg-green-600', 'text-white');
+                messageIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles"><path d="M9.9 10.9c.32-.32.55-.74.67-1.24.12-.51.1-1.05-.05-1.55-.15-.5-.4-1-.77-1.39-.37-.39-.85-.7-1.39-.77-.5-.05-1.04-.07-1.55-.05-.5.02-1.01.15-1.4.37-.39.22-.72.54-.95.95-.23.4-.36.9-.37 1.4-.02.51 0 1.05.15 1.55.15.5.4.92.77 1.3.37.39.85.7 1.39.77.5.05 1.04.07 1.55.05.5-.02 1.01-.15 1.4-.37.39-.22.72-.54.95-.95ZM3.6 3.6c.32-.32.55-.74.67-1.24.12-.51.1-1.05-.05-1.55-.15-.5-.4-1-.77-1.39-.37-.39-.85-.7-1.39-.77-.5-.05-1.04-.07-1.55-.05-.5.02-1.01.15-1.4.37-.39.22-.72.54-.95.95-.23.4-.36.9-.37 1.4-.02.51 0 1.05.15 1.55.15.5.4.92.77 1.3.37.39.85.7 1.39.77.5.05 1.04.07 1.55.05.5-.02 1.01-.15 1.4-.37.39-.22.72-.54.95-.95ZM20 3c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1.4-.6ZM3 20c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1.4-.6ZM20 20c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1-1.4ZM3 3c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4s.2 1 .6 1.4c.4.4.9.6 1.4.6s1-.2 1.4-.6c.4-.4.6-.9.6-1.4s-.2-1-.6-1.4c-.4-.4-.9-.6-1.4-.6Z"/></svg>`;
+            } else if (type === 'error') {
+                messageContainer.classList.add('bg-red-600', 'text-white');
+                messageIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`;
+            } else if (type === 'warning') {
+                messageContainer.classList.add('bg-yellow-600', 'text-white');
+                messageIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-triangle"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 22h16a2 2 0 0 0 1.73-4Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+            } else { // info
+                messageContainer.classList.add('bg-blue-600', 'text-white');
+                messageIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
+            }
+
+            // Show with animation
+            messageContainer.style.opacity = '0';
+            messageContainer.style.transform = 'translate(-50%, -50px)';
+            setTimeout(() => {
+                messageContainer.style.opacity = '1';
+                messageContainer.style.transform = 'translate(-50%, 0)';
+            }, 10); // Small delay for transition to apply
+
+            setTimeout(() => {
+                messageContainer.style.opacity = '0';
+                messageContainer.style.transform = 'translate(-50%, -50px)';
+                setTimeout(() => {
+                    messageContainer.classList.add('hidden');
+                    messageContainer.className = `fixed top-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 hidden message-box`; // Reset classes
+                }, 300); // Wait for transition to finish
+            }, duration);
+        }
+
+        /**
+         * Opens a specified modal.
+         * @param {HTMLElement} modalElement - The modal DOM element to open.
+         */
+        function openModal(modalElement) {
+            modalElement.classList.remove('hidden');
+            modalElement.style.opacity = '0';
+            modalElement.querySelector('.modal-content').style.transform = 'translateY(-50px)';
+            setTimeout(() => {
+                modalElement.style.opacity = '1';
+                modalElement.querySelector('.modal-content').style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        /**
+         * Closes a specified modal.
+         * @param {HTMLElement} modalElement - The modal DOM element to close.
+         */
+        function closeModal(modalElement) {
+            modalElement.style.opacity = '0';
+            modalElement.querySelector('.modal-content').style.transform = 'translateY(-50px)';
+            setTimeout(() => {
+                modalElement.classList.add('hidden');
+            }, 300); // Match transition duration
+        }
+
+        /**
+         * Renders a game card HTML string.
+         * @param {Object} game - Game data object.
+         * @param {boolean} isAdminView - True if rendering for admin panel.
+         * @returns {string} HTML string for the game card.
+         */
+        function renderGameCard(game, isAdminView = false) {
+            const placeholderImage = `https://placehold.co/600x400/0D1117/FFFFFF?text=${game.name ? game.name.replace(/\s/g,'+') : 'No+Name'}`;
+            const adminButtons = isAdminView ? `
+                <div class="flex gap-2 mt-4 sm:mt-0">
+                    ${!game.approved ? `<button class="admin-approve-button bg-green-600 hover:bg-green-700 text-white p-2 rounded-full" data-game-id="${game.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></button>` : ''}
+                    <button class="admin-edit-button bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full" data-game-id="${game.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
+                    <button class="admin-delete-button bg-red-600 hover:bg-red-700 text-white p-2 rounded-full" data-game-id="${game.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
+                </div>
+            ` : '';
+
+            if (isAdminView) {
+                return `
+                    <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700 flex flex-col sm:flex-row items-center gap-4">
+                        <img src="${game.image || placeholderImage}" alt="${game.name}" class="w-24 h-24 object-cover rounded-lg" onerror="this.onerror=null;this.src='${placeholderImage.replace('600x400', '96x96')}'" />
+                        <div class="flex-grow">
+                            <h4 class="text-xl font-semibold text-white">${game.name} ${game.approved ? '' : '(Pending)'}</h4>
+                            <p class="text-gray-400 text-sm">Genre: ${game.genre}</p>
+                            <p class="text-gray-500 text-xs">Uploaded by: ${game.uploadedBy || 'Unknown'}</p>
+                        </div>
+                        ${adminButtons}
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="group relative rounded-2xl overflow-hidden shadow-lg bg-black/40 backdrop-blur-lg border border-white/10 transition-all duration-300 hover:border-cyan-400/60 hover:shadow-cyan-400/20 cursor-pointer game-card" data-game-id="${game.id}">
+                        <img src="${game.image || placeholderImage}" alt="${game.name}" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.onerror=null;this.src='${placeholderImage}'"/>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-4 w-full">
+                            <h2 class="text-xl font-bold text-white drop-shadow-lg truncate">${game.name}</h2>
+                            <div class="flex justify-between items-center mt-2">
+                                <p class="text-sm font-semibold text-cyan-300 bg-black/50 px-2 py-1 rounded-full inline-block">
+                                    ${game.price}
+                                </p>
+                                <p class="text-xs font-semibold text-purple-300 bg-black/50 px-2 py-1 rounded-full inline-block">
+                                    ${game.genre}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * Renders skeleton cards for loading state.
+         * @param {number} count - Number of skeleton cards to render.
+         * @returns {string} HTML string for skeleton cards.
+         */
+        function renderSkeletonCards(count) {
+            let html = '';
+            for (let i = 0; i < count; i++) {
+                html += `
+                    <div class="rounded-2xl p-4 bg-white/5 animate-pulse">
+                        <div class="w-full h-40 bg-white/10 rounded-lg mb-4"></div>
+                        <div class="h-6 w-3/4 bg-white/10 rounded mb-2"></div>
+                        <div class="h-4 w-1/4 bg-white/10 rounded"></div>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        /**
+         * Filters games based on search term and active genre.
+         * Updates the main game grid.
+         */
+        function updateFilteredGames() {
+            filteredGames = gameList.filter(game => {
+                const gameName = game.name ? game.name.toLowerCase() : '';
+                const matchesSearch = gameName.includes(searchTerm.toLowerCase());
+                const matchesGenre = activeGenre === 'All' || game.genre === activeGenre;
+                return matchesSearch && matchesGenre && game.approved; // Only show approved games
+            });
+
+            renderGameGrid(filteredGames);
+        }
+
+        /**
+         * Renders the main game grid.
+         * @param {Array<Object>} gamesToRender - Array of game objects to display.
+         */
+        function renderGameGrid(gamesToRender) {
+            gameGrid.innerHTML = ''; // Clear existing cards
+            if (gamesToRender.length === 0) {
+                noGamesFound.classList.remove('hidden');
+            } else {
+                noGamesFound.classList.add('hidden');
+                gamesToRender.forEach(game => {
+                    const div = document.createElement('div');
+                    div.innerHTML = renderGameCard(game);
+                    gameGrid.appendChild(div.firstElementChild); // Append the actual card element
+                });
+            }
+            // Add click listeners to newly rendered game cards
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.onclick = (event) => {
+                    const gameId = event.currentTarget.dataset.gameId;
+                    const selectedGame = gameList.find(g => g.id === gameId);
+                    if (selectedGame) {
+                        showGameDetailModal(selectedGame);
+                    }
+                };
+            });
+        }
+
+        /**
+         * Renders the genre filter buttons.
+         */
+        function renderGenreFilters() {
+            const genres = ['All', ...new Set(gameList.map(g => g.genre).filter(Boolean))];
+            genreFilters.innerHTML = ''; // Clear existing buttons
+
+            if (genres.length > 1) {
+                genreFilters.classList.remove('hidden');
+                genres.forEach(genre => {
+                    const button = document.createElement('button');
+                    button.textContent = genre;
+                    button.classList.add('px-4', 'py-1.5', 'text-sm', 'font-semibold', 'rounded-full', 'transition-all', 'duration-300', 'border');
+                    if (activeGenre === genre) {
+                        button.classList.add('bg-cyan-400/20', 'border-cyan-400', 'text-cyan-300');
+                    } else {
+                        button.classList.add('bg-white/5', 'border-transparent', 'text-gray-400', 'hover:bg-white/10', 'hover:text-white');
+                    }
+                    button.onclick = () => {
+                        activeGenre = genre;
+                        renderGenreFilters(); // Re-render to update active state
+                        updateFilteredGames();
+                    };
+                    genreFilters.appendChild(button);
+                });
+            } else {
+                genreFilters.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Renders the featured games carousel.
+         */
+        function renderFeaturedGames() {
+            const featured = gameList.filter(game => game.approved).sort(() => 0.5 - Math.random()).slice(0, 5);
+            if (featured.length > 0) {
+                featuredGamesSection.classList.remove('hidden');
+                featuredGamesCarousel.innerHTML = '';
+                featured.forEach(game => {
+                    const div = document.createElement('div');
+                    const placeholderImage = `https://placehold.co/320x192/0D1117/FFFFFF?text=${game.name ? game.name.replace(/\s/g,'+') : 'No+Name'}`;
+                    div.innerHTML = `
+                        <div class="flex-shrink-0 w-80 h-48 rounded-xl overflow-hidden cursor-pointer group relative shadow-lg bg-black/40 backdrop-blur-lg border border-white/10 hover:border-purple-400/60 transition-all featured-game-card" data-game-id="${game.id}">
+                            <img src="${game.image || placeholderImage}" alt="${game.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onerror="this.onerror=null;this.src='${placeholderImage}'" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
+                            <div class="absolute bottom-0 left-0 p-4">
+                                <h3 class="font-bold text-lg text-white">${game.name}</h3>
+                            </div>
+                        </div>
+                    `;
+                    featuredGamesCarousel.appendChild(div.firstElementChild);
+                });
+                // Add click listeners to newly rendered featured game cards
+                document.querySelectorAll('.featured-game-card').forEach(card => {
+                    card.onclick = (event) => {
+                        const gameId = event.currentTarget.dataset.gameId;
+                        const selectedGame = gameList.find(g => g.id === gameId);
+                        if (selectedGame) {
+                            showGameDetailModal(selectedGame);
+                        }
+                    };
+                });
+            } else {
+                featuredGamesSection.classList.add('hidden');
+            }
+        }
+
+        // --- Modal Display Functions ---
+
+        function showUploadModal() {
+            // Reset form
+            newGameNameInput.value = '';
+            newGameImageInput.value = '';
+            newGamePriceInput.value = '';
+            newGameGenreInput.value = '';
+            newGameHtmlContentInput.value = '';
+            newGameLinkInput.value = '';
+            uploadErrorMessage.classList.add('hidden');
+            uploadButtonText.textContent = 'Upload & Share';
+            uploadGameSubmitButton.disabled = false;
+            openModal(uploadModal);
+        }
+
+        function showGameDetailModal(game) {
+            gameDetailName.textContent = game.name;
+            gameDetailPrice.textContent = game.price;
+            gameDetailGenre.textContent = game.genre;
+            gameDetailUploadedBy.textContent = `Uploaded by: ${game.uploadedBy || 'Unknown'}`;
+            gameDetailUploadedBy.classList.toggle('hidden', !game.uploadedBy); // Show only if uploadedBy exists
+            gameDetailPendingStatus.classList.toggle('hidden', game.approved); // Show if NOT approved
+
+            gamePlayArea.innerHTML = ''; // Clear previous content
+
+            if (game.htmlContent) {
+                const iframe = document.createElement('iframe');
+                iframe.srcdoc = game.htmlContent;
+                iframe.title = game.name;
+                iframe.className = "w-full h-full border-none rounded-lg";
+                iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-forms");
+                gamePlayArea.appendChild(iframe);
+            } else if (game.gameLink) {
+                const div = document.createElement('div');
+                div.className = "text-center";
+                div.innerHTML = `
+                    <p class="text-gray-300 text-lg mb-4">This game is hosted externally.</p>
+                    <a href="${game.gameLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold py-3 px-6 rounded-lg hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 transform hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M7 21H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/></svg> Play External Game
+                    </a>
+                `;
+                gamePlayArea.appendChild(div);
+            } else {
+                gamePlayArea.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-400 text-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle mr-2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg> No playable content or link available for this game.
+                    </div>
+                `;
+            }
+            openModal(gameDetailModal);
+        }
+
+        function showAdminLoginModal() {
+            adminPasswordInput.value = '';
+            adminLoginErrorMessage.classList.add('hidden');
+            openModal(adminLoginModal);
+        }
+
+        function showAdminDashboardModal() {
+            updateAdminDashboardCounts();
+            renderAdminContent(); // Render initial content (pending games)
+            openModal(adminDashboardModal);
+        }
+
+        function showStaticPageModal(title, content) {
+            staticPageTitleElem.textContent = title;
+            staticPageContentElem.innerHTML = content; // Use innerHTML to render HTML content
+            openModal(staticPageModal);
+        }
+
+        // --- Admin Panel Render Functions ---
+
+        function updateAdminDashboardCounts() {
+            pendingGames = gameList.filter(game => !game.approved);
+            allAdminGames = [...gameList]; // Clone to avoid direct mutation
+            pendingGamesCount.textContent = pendingGames.length;
+            allGamesCount.textContent = allAdminGames.length;
+        }
+
+        function renderAdminContent() {
+            adminContentArea.innerHTML = ''; // Clear existing content
+
+            // Reset tab buttons
+            adminViewPendingBtn.classList.remove('bg-cyan-600', 'text-white');
+            adminViewPendingBtn.classList.add('bg-gray-700', 'text-gray-300');
+            adminViewAllGamesBtn.classList.remove('bg-cyan-600', 'text-white');
+            adminViewAllGamesBtn.classList.add('bg-gray-700', 'text-gray-300');
+            adminViewAddGameBtn.classList.remove('bg-cyan-600', 'text-white');
+            adminViewAddGameBtn.classList.add('bg-gray-700', 'text-gray-300');
+            adminViewStaticPagesBtn.classList.remove('bg-cyan-600', 'text-white');
+            adminViewStaticPagesBtn.classList.add('bg-gray-700', 'text-gray-300');
+
+            if (currentAdminView === 'pending') {
+                adminViewPendingBtn.classList.add('bg-cyan-600', 'text-white');
+                adminViewPendingBtn.classList.remove('bg-gray-700', 'text-gray-300');
+                if (pendingGames.length === 0) {
+                    adminContentArea.innerHTML = '<p class="text-gray-400">No games pending approval.</p>';
+                } else {
+                    let html = '<h3 class="text-2xl font-bold text-purple-300 mb-4">Games Pending Approval</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                    pendingGames.forEach(game => {
+                        html += renderGameCard(game, true); // true for admin view
+                    });
+                    html += '</div>';
+                    adminContentArea.innerHTML = html;
+                    attachAdminGameEventListeners();
+                }
+            } else if (currentAdminView === 'all-games') {
+                adminViewAllGamesBtn.classList.add('bg-cyan-600', 'text-white');
+                adminViewAllGamesBtn.classList.remove('bg-gray-700', 'text-gray-300');
+                if (allAdminGames.length === 0) {
+                    adminContentArea.innerHTML = '<p class="text-gray-400">No games available.</p>';
+                } else {
+                    let html = '<h3 class="text-2xl font-bold text-purple-300 mb-4">All Games (Admin View)</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                    allAdminGames.forEach(game => {
+                        html += renderGameCard(game, true); // true for admin view
+                    });
+                    html += '</div>';
+                    adminContentArea.innerHTML = html;
+                    attachAdminGameEventListeners();
+                }
+            } else if (currentAdminView === 'add-game' || currentAdminView === 'edit-game') {
+                if (currentAdminView === 'add-game') {
+                    adminViewAddGameBtn.classList.add('bg-cyan-600', 'text-white');
+                    adminViewAddGameBtn.classList.remove('bg-gray-700', 'text-gray-300');
+                }
+                renderAdminGameForm(gameToEdit);
+            } else if (currentAdminView === 'static-pages') {
+                adminViewStaticPagesBtn.classList.add('bg-cyan-600', 'text-white');
+                adminViewStaticPagesBtn.classList.remove('bg-gray-700', 'text-gray-300');
+                renderAdminStaticPagesList();
+            } else if (currentAdminView === 'edit-static-page') {
+                renderAdminStaticPageForm(staticPageToEdit);
+            }
+        }
+
+        function attachAdminGameEventListeners() {
+            document.querySelectorAll('.admin-approve-button').forEach(button => {
+                button.onclick = (e) => handleApproveGame(e.currentTarget.dataset.gameId);
+            });
+            document.querySelectorAll('.admin-delete-button').forEach(button => {
+                button.onclick = (e) => handleAdminDeleteGame(e.currentTarget.dataset.gameId);
+            });
+            document.querySelectorAll('.admin-edit-button').forEach(button => {
+                button.onclick = (e) => {
+                    const gameId = e.currentTarget.dataset.gameId;
+                    gameToEdit = gameList.find(g => g.id === gameId);
+                    currentAdminView = 'edit-game';
+                    renderAdminContent();
+                };
+            });
+        }
+
+        function renderAdminGameForm(game = null) {
+            const isEdit = game !== null;
+            const formHtml = `
+                <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700 flex-grow mt-6">
+                    <h3 class="text-2xl font-bold text-cyan-300 mb-4">${isEdit ? 'Edit Game' : 'Add New Game'}</h3>
+                    <div id="admin-game-form-error" class="text-red-400 bg-red-500/10 p-2 rounded-md mb-4 text-sm flex items-center gap-2 hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span class="error-text"></span>
+                    </div>
+                    <form id="admin-game-form" class="space-y-4">
+                        <div>
+                            <label for="admin-game-name" class="text-sm font-medium text-cyan-200/80 mb-1 block">Game Name</label>
+                            <input type="text" id="admin-game-name" placeholder="e.g., Cyber Drift" value="${game ? game.name : ''}" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                        </div>
+                        <div>
+                            <label for="admin-game-image" class="text-sm font-medium text-cyan-200/80 mb-1 block">Image URL (Cover)</label>
+                            <input type="text" id="admin-game-image" placeholder="https://example.com/image.jpg" value="${game ? game.image : ''}" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="admin-game-price" class="text-sm font-medium text-cyan-200/80 mb-1 block">Play Fee</label>
+                                <input type="text" id="admin-game-price" placeholder="e.g., $4.99 or Free" value="${game ? game.price : ''}" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                            </div>
+                            <div>
+                                <label for="admin-game-genre" class="text-sm font-medium text-cyan-200/80 mb-1 block">Genre</label>
+                                <input type="text" id="admin-game-genre" placeholder="e.g., RPG, Shooter" value="${game ? game.genre : ''}" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                            </div>
+                        </div>
+                        <div>
+                            <label for="admin-game-html-content" class="text-sm font-medium text-cyan-200/80 mb-1 block">Game HTML Content (Optional)</label>
+                            <textarea id="admin-game-html-content" placeholder="Paste your full game HTML code here (including <style> and <script> tags)..." class="w-full h-32 bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all font-mono text-xs">${game ? game.htmlContent || '' : ''}</textarea>
+                            <p class="text-gray-500 text-xs mt-1">Leave blank if providing an external link.</p>
+                        </div>
+                        <div>
+                            <label for="admin-game-link" class="text-sm font-medium text-cyan-200/80 mb-1 block">Game Link (External URL - Optional)</label>
+                            <input type="url" id="admin-game-link" placeholder="https://yourgame.com/play" value="${game ? game.gameLink || '' : ''}" class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all" />
+                            <p class="text-gray-500 text-xs mt-1">Leave blank if providing HTML content. HTML content takes precedence.</p>
+                        </div>
+                        <div class="flex items-center mt-4">
+                            <input type="checkbox" id="admin-game-approved" ${game && game.approved ? 'checked' : ''} class="h-4 w-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500" />
+                            <label for="admin-game-approved" class="ml-2 text-gray-300 text-sm font-medium">Approve Game (Show on main list)</label>
+                        </div>
+                        <div class="flex gap-4 mt-6">
+                            <button type="submit" id="admin-game-submit-button" class="flex-grow bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3 rounded-lg font-bold text-lg hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed">
+                                ${isEdit ? 'Save Game' : 'Add Game'}
+                            </button>
+                            <button type="button" id="admin-game-cancel-button" class="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg font-semibold hover:bg-gray-600 transition duration-300">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            adminContentArea.innerHTML = formHtml;
+
+            // Attach event listeners for the form
+            const adminGameForm = document.getElementById('admin-game-form');
+            const adminGameSubmitButton = document.getElementById('admin-game-submit-button');
+            const adminGameCancelButton = document.getElementById('admin-game-cancel-button');
+            const adminGameFormError = document.getElementById('admin-game-form-error');
+            const adminGameErrorText = adminGameFormError.querySelector('.error-text');
+
+            adminGameForm.onsubmit = async (e) => {
+                e.preventDefault();
+                adminGameSubmitButton.disabled = true;
+                adminGameFormError.classList.add('hidden');
+
+                const formData = {
+                    name: document.getElementById('admin-game-name').value,
+                    image: document.getElementById('admin-game-image').value,
+                    price: document.getElementById('admin-game-price').value,
+                    genre: document.getElementById('admin-game-genre').value,
+                    htmlContent: document.getElementById('admin-game-html-content').value,
+                    gameLink: document.getElementById('admin-game-link').value,
+                    approved: document.getElementById('admin-game-approved').checked,
+                };
+
+                if (!formData.name || !formData.image || !formData.price || !formData.genre) {
+                    adminGameErrorText.textContent = "Game Name, Image URL, Play Fee, and Genre are required.";
+                    adminGameFormError.classList.remove('hidden');
+                    adminGameSubmitButton.disabled = false;
+                    return;
+                }
+                if (!formData.htmlContent && !formData.gameLink) {
+                    adminGameErrorText.textContent = "Either Game HTML Content or Game Link must be provided.";
+                    adminGameFormError.classList.remove('hidden');
+                    adminGameSubmitButton.disabled = false;
+                    return;
+                }
+                if (!db) {
+                    adminGameErrorText.textContent = "Database not connected.";
+                    adminGameFormError.classList.remove('hidden');
+                    adminGameSubmitButton.disabled = false;
+                    return;
+                }
+
+                try {
+                    if (isEdit) {
+                        await updateDoc(doc(db, `artifacts/${appId}/public/data/games`, game.id), formData);
+                        showMessage("Game updated successfully!", 'success');
+                    } else {
+                        await addDoc(collection(db, `artifacts/${appId}/public/data/games`), {
+                            ...formData,
+                            uploadedBy: currentUserId,
+                            timestamp: new Date(),
+                        });
+                        showMessage("New game added successfully!", 'success');
+                    }
+                    gameToEdit = null;
+                    currentAdminView = 'all-games'; // Go back to all games view
+                    renderAdminContent(); // Re-render admin content
+                } catch (e) {
+                    console.error("Error saving game:", e);
+                    showMessage(`Failed to save game: ${e.message}`, 'error');
+                    adminGameErrorText.textContent = `Failed to save game: ${e.message}`;
+                    adminGameFormError.classList.remove('hidden');
+                } finally {
+                    adminGameSubmitButton.disabled = false;
+                }
+            };
+
+            adminGameCancelButton.onclick = () => {
+                gameToEdit = null;
+                currentAdminView = 'all-games'; // Go back to all games view
+                renderAdminContent();
+            };
+        }
+
+        async function renderAdminStaticPagesList() {
+            const staticPages = [
+                { id: 'contact', title: 'Contact Page', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>` },
+                { id: 'about', title: 'About Page', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>` },
+                { id: 'howToUse', title: 'How To Use Page', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>` },
+            ];
+
+            let html = `<h3 class="text-2xl font-bold text-purple-300 mb-4">Manage Static Pages</h3><div class="space-y-4">`;
+            staticPages.forEach(page => {
+                html += `
+                    <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700 flex justify-between items-center">
+                        <span class="text-white text-lg flex items-center gap-2">${page.icon} ${page.title}</span>
+                        <button class="admin-edit-static-page-button bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full" data-page-id="${page.id}" data-page-title="${page.title}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+                        </button>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            adminContentArea.innerHTML = html;
+
+            document.querySelectorAll('.admin-edit-static-page-button').forEach(button => {
+                button.onclick = async (e) => {
+                    const pageId = e.currentTarget.dataset.pageId;
+                    const pageTitle = e.currentTarget.dataset.pageTitle;
+                    if (!db) { showMessage("Database not connected.", 'error'); return; }
+                    try {
+                        const docRef = doc(db, `artifacts/${appId}/public/data/staticPages`, pageId);
+                        const docSnap = await getDoc(docRef);
+                        staticPageToEdit = {
+                            id: pageId,
+                            title: pageTitle,
+                            content: docSnap.exists() ? docSnap.data().content : "",
+                        };
+                        currentAdminView = 'edit-static-page';
+                        renderAdminContent();
+                    } catch (error) {
+                        console.error(`Error fetching static page for edit:`, error);
+                        showMessage(`Error loading ${pageTitle} for editing.`, 'error');
+                    }
+                };
+            });
+        }
+
+        function renderAdminStaticPageForm(page) {
+            const formHtml = `
+                <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700 flex-grow mt-6">
+                    <h3 class="text-2xl font-bold text-cyan-300 mb-4">Edit ${page.title}</h3>
+                    <div id="admin-static-page-form-error" class="text-red-400 bg-red-500/10 p-2 rounded-md mb-4 text-sm flex items-center gap-2 hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span class="error-text"></span>
+                    </div>
+                    <form id="admin-static-page-form" class="space-y-4">
+                        <div>
+                            <label for="static-page-content-textarea" class="text-sm font-medium text-cyan-200/80 mb-1 block">Content (HTML/Text)</label>
+                            <textarea id="static-page-content-textarea" placeholder="Enter content for ${page.title}..." class="w-full h-64 bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all font-mono text-xs">${page.content || ''}</textarea>
+                        </div>
+                        <div class="flex gap-4 mt-6">
+                            <button type="submit" id="admin-static-page-submit-button" class="flex-grow bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3 rounded-lg font-bold text-lg hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed">
+                                Save Content
+                            </button>
+                            <button type="button" id="admin-static-page-cancel-button" class="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg font-semibold hover:bg-gray-600 transition duration-300">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            adminContentArea.innerHTML = formHtml;
+
+            const adminStaticPageForm = document.getElementById('admin-static-page-form');
+            const adminStaticPageSubmitButton = document.getElementById('admin-static-page-submit-button');
+            const adminStaticPageCancelButton = document.getElementById('admin-static-page-cancel-button');
+            const adminStaticPageFormError = document.getElementById('admin-static-page-form-error');
+            const adminStaticPageErrorText = adminStaticPageFormError.querySelector('.error-text');
+
+            adminStaticPageForm.onsubmit = async (e) => {
+                e.preventDefault();
+                adminStaticPageSubmitButton.disabled = true;
+                adminStaticPageFormError.classList.add('hidden');
+
+                const content = document.getElementById('static-page-content-textarea').value;
+                if (!db) {
+                    adminStaticPageErrorText.textContent = "Database not connected.";
+                    adminStaticPageFormError.classList.remove('hidden');
+                    adminStaticPageSubmitButton.disabled = false;
+                    return;
+                }
+
+                try {
+                    const docRef = doc(db, `artifacts/${appId}/public/data/staticPages`, page.id);
+                    await setDoc(docRef, { content: content }, { merge: true });
+                    showMessage(`${page.title} updated successfully!`, 'success');
+                    staticPageToEdit = null;
+                    currentAdminView = 'static-pages';
+                    renderAdminContent();
+                } catch (e) {
+                    console.error(`Error saving ${page.title}:`, e);
+                    showMessage(`Failed to save ${page.title}: ${e.message}`, 'error');
+                    adminStaticPageErrorText.textContent = `Failed to save ${page.title}: ${e.message}`;
+                    adminStaticPageFormError.classList.remove('hidden');
+                } finally {
+                    adminStaticPageSubmitButton.disabled = false;
+                }
+            };
+
+            adminStaticPageCancelButton.onclick = () => {
+                staticPageToEdit = null;
+                currentAdminView = 'static-pages';
+                renderAdminContent();
+            };
+        }
+
+        // --- Event Handlers (Firestore Operations) ---
+
+        async function handleUploadGame() {
+            const newGame = {
+                name: newGameNameInput.value,
+                image: newGameImageInput.value,
+                price: newGamePriceInput.value,
+                genre: newGameGenreInput.value,
+                htmlContent: newGameHtmlContentInput.value,
+                gameLink: newGameLinkInput.value,
+            };
+
+            if (!newGame.name || !newGame.image || !newGame.price || !newGame.genre) {
+                uploadErrorText.textContent = "Game Name, Image URL, Play Fee, and Genre are required.";
+                uploadErrorMessage.classList.remove('hidden');
+                return;
+            }
+            if (!newGame.htmlContent && !newGame.gameLink) {
+                uploadErrorText.textContent = "Either Game HTML Content or Game Link must be provided.";
+                uploadErrorMessage.classList.remove('hidden');
+                return;
+            }
+            if (!db || !currentUserId) {
+                uploadErrorText.textContent = "Database not connected or user not authenticated.";
+                uploadErrorMessage.classList.remove('hidden');
+                return;
+            }
+
+            uploadGameSubmitButton.disabled = true;
+            uploadButtonText.textContent = 'Uploading...';
+            uploadErrorMessage.classList.add('hidden');
+
+            try {
+                const gamesCollectionPath = `/artifacts/${appId}/public/data/games`;
+                await addDoc(collection(db, gamesCollectionPath), {
+                    ...newGame,
+                    uploadedBy: currentUserId,
+                    timestamp: new Date(),
+                    approved: false, // New games need approval by default
+                });
+                showMessage("Game uploaded successfully! Awaiting admin approval.", 'success');
+                closeModal(uploadModal);
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showMessage(`Failed to upload game: ${e.message}`, 'error');
+                uploadErrorText.textContent = `Failed to upload game: ${e.message}`;
+                uploadErrorMessage.classList.remove('hidden');
+            } finally {
+                uploadGameSubmitButton.disabled = false;
+                uploadButtonText.textContent = 'Upload & Share';
+            }
+        }
+
+        async function handleAdminLogin(password) {
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                closeModal(adminLoginModal);
+                showMessage("Admin login successful!", 'success');
+                showAdminDashboardModal(); // Open dashboard after login
+            } else {
+                adminLoginErrorText.textContent = "Incorrect admin password.";
+                adminLoginErrorMessage.classList.remove('hidden');
+            }
+        }
+
+        async function handleApproveGame(gameId) {
+            if (!db) { showMessage("Database not connected.", 'error'); return; }
+            try {
+                await updateDoc(doc(db, `artifacts/${appId}/public/data/games`, gameId), {
+                    approved: true,
+                });
+                showMessage("Game approved successfully!", 'success');
+            } catch (error) {
+                console.error("Error approving game:", error);
+                showMessage(`Error approving game: ${error.message}`, 'error');
+            }
+        }
+
+        async function handleAdminDeleteGame(gameId) {
+            if (!db) { showMessage("Database not connected.", 'error'); return; }
+            const confirmDeletion = prompt("Are you sure you want to DELETE this game from Admin Panel? Type 'confirm' to proceed.");
+            if (confirmDeletion && confirmDeletion.toLowerCase() === 'confirm') {
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/games`, gameId));
+                    showMessage("Game deleted by admin!", 'success');
+                } catch (error) {
+                    console.error("Error deleting game (admin):", error);
+                    showMessage(`Error deleting game: ${error.message}`, 'error');
+                }
+            } else {
+                showMessage("Admin deletion cancelled.", 'info');
+            }
+        }
+
+        async function fetchStaticPageContent(pageId, title) {
+            if (!db) { showMessage("Database not connected.", 'error'); return; }
+            try {
+                const docRef = doc(db, `artifacts/${appId}/public/data/staticPages`, pageId);
+                const docSnap = await getDoc(docRef);
+                let content = "No content available yet. Admin can add it from the Admin Panel.";
+                if (docSnap.exists()) {
+                    content = docSnap.data().content || content;
+                }
+                showStaticPageModal(title, content);
+            } catch (error) {
+                console.error(`Error fetching ${pageId} content:`, error);
+                showMessage(`Error fetching ${title} content.`, 'error');
+                showStaticPageModal(title, "Error loading content.");
+            }
+        }
+
+        // --- Event Listeners ---
+
+        // Main Menu Toggle
+        mainMenuButton.onclick = () => {
+            mainMenuDropdown.classList.toggle('hidden');
+        };
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            if (!mainMenuButton.contains(event.target) && !mainMenuDropdown.contains(event.target)) {
+                mainMenuDropdown.classList.add('hidden');
+            }
+        });
+
+        // Admin Panel Button
+        adminPanelButton.onclick = () => {
+            mainMenuDropdown.classList.add('hidden');
+            showAdminLoginModal();
+        };
+
+        // Static Page Buttons
+        staticPageButtons.forEach(button => {
+            button.onclick = (e) => {
+                mainMenuDropdown.classList.add('hidden');
+                const pageId = e.currentTarget.dataset.pageId;
+                const pageTitle = e.currentTarget.dataset.pageTitle;
+                fetchStaticPageContent(pageId, pageTitle);
+            };
+        });
+
+        // Search Input
+        searchInput.oninput = (e) => {
+            searchTerm = e.target.value;
+            updateFilteredGames();
+        };
+
+        // Upload Button
+        uploadButton.onclick = showUploadModal;
+        uploadGameSubmitButton.onclick = handleUploadGame;
+
+        // Modal Close Buttons
+        allModalCloseButtons.forEach(button => {
+            button.onclick = (e) => {
+                const modalId = e.currentTarget.dataset.modal;
+                const modalElement = document.getElementById(modalId);
+                if (modalElement) {
+                    closeModal(modalElement);
+                    // Special handling for admin dashboard to reset view on close
+                    if (modalId === 'admin-dashboard-modal') {
+                        isAdminLoggedIn = false; // Log out admin on close
+                        currentAdminView = 'pending'; // Reset view
+                    }
+                }
+            };
+        });
+
+        // Admin Login Form Submit
+        adminLoginForm.onsubmit = (e) => {
+            e.preventDefault();
+            handleAdminLogin(adminPasswordInput.value);
+        };
+
+        // Admin Dashboard Tab Buttons
+        adminViewPendingBtn.onclick = () => { currentAdminView = 'pending'; renderAdminContent(); };
+        adminViewAllGamesBtn.onclick = () => { currentAdminView = 'all-games'; renderAdminContent(); };
+        adminViewAddGameBtn.onclick = () => { currentAdminView = 'add-game'; gameToEdit = null; renderAdminContent(); };
+        adminViewStaticPagesBtn.onclick = () => { currentAdminView = 'static-pages'; renderAdminContent(); };
+
+        // --- Firebase Auth & Data Fetching ---
+
+        // Auth State Listener
+        if (auth) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    userIdValue.textContent = currentUserId;
+                    userIdDisplay.classList.remove('hidden');
+                    console.log("User signed in:", currentUserId);
+                } else {
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                            console.log("Signed in with custom token.");
+                        } else {
+                            await signInAnonymously(auth);
+                            console.log("Signed in anonymously.");
+                        }
+                    } catch (authError) {
+                        console.error("Authentication failed:", authError);
+                        showMessage(`Authentication failed: ${authError.message}`, 'error');
+                    }
+                }
+                // Once auth is ready, start fetching data
+                if (db) {
+                    const gamesCollectionPath = `/artifacts/${appId}/public/data/games`;
+                    const q = query(collection(db, gamesCollectionPath));
+
+                    onSnapshot(q, (querySnapshot) => {
+                        const gamesData = [];
+                        querySnapshot.forEach((doc) => {
+                            gamesData.push({ id: doc.id, ...doc.data() });
+                        });
+                        gameList = gamesData; // Update global game list
+                        renderFeaturedGames();
+                        renderGenreFilters();
+                        updateFilteredGames(); // Re-filter and render main grid
+                        updateAdminDashboardCounts(); // Update counts for admin panel
+                        if (isAdminLoggedIn) { // Re-render admin content if dashboard is open
+                            renderAdminContent();
+                        }
+                        console.log("Games data updated.");
+                    }, (error) => {
+                        console.error("Error fetching games:", error);
+                        showMessage(`Error fetching games: ${error.message}`, 'error');
+                    });
+                }
+            });
+        } else {
+            showMessage("Firebase Auth is not initialized. Check console for errors.", 'error');
+            userIdDisplay.classList.add('hidden');
+        }
+
+        // --- Google Analytics Integration ---
+        if (GA_TRACKING_ID && GA_TRACKING_ID !== 'YOUR_GA_MEASUREMENT_ID') {
+            const script = document.createElement('script');
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
+            script.async = true;
+            document.head.appendChild(script);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', GA_TRACKING_ID);
+
+            console.log('Google Analytics initialized with ID:', GA_TRACKING_ID);
+        } else {
+            console.warn("Google Analytics Tracking ID is not set. Please replace 'YOUR_GA_MEASUREMENT_ID' with your actual ID.");
+        }
+
+        // Initial render of skeleton cards while loading
+        gameGrid.innerHTML = renderSkeletonCards(8);
+    </script>
 </body>
 </html>
