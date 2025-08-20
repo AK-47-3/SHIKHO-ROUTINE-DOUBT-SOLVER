@@ -126,27 +126,64 @@
             }
 
             /* Adjust chat input bar padding and icon spacing */
-            .chat-input-bar {
-                padding: 0.375rem 0.5rem; /* 6px 8px */
-            }
-            .chat-input-bar input {
-                padding: 0.3rem 0.5rem; /* ~5px 8px */
-                margin-right: 0.25rem; /* 4px */
-                font-size: 0.75rem; /* 12px */
-                min-width: 0; /* Allow input to shrink */
-            }
-            .chat-input-bar .icon {
-                margin-left: 0.25rem; /* 4px */
-                min-width: 1.1rem; /* Ensure icons don't shrink too much */
-            }
-            .send-button-icon {
-                width: 1.1rem; /* ~17.6px */
-                height: 1.1rem; /* ~17.6px */
-            }
-            .chat-input-bar .h-6, .chat-input-bar .w-6 { /* Camera/Mic icons in input bar */
-                height: 1.1rem; /* ~17.6px */
-                width: 1.1rem; /* ~17.6px */
-            }
+/* Chat Input Bar Container */
+.chat-input-bar {
+    display: flex;
+    align-items: center;
+    width: 100%;            /* পুরো screen ধরবে */
+    padding: 0.25rem 0.5rem; /* compact padding */
+    gap: 0.25rem;           /* input & icons spacing */
+    box-sizing: border-box; /* padding inside */
+    background-color: #f8f8f8; /* subtle bg */
+    border-top: 1px solid #ddd;
+}
+
+/* Input Field */
+.chat-input-bar input {
+    flex: 1;                /* বাকি space input নেবে */
+    padding: 0.4rem 0.5rem; /* readable padding */
+    font-size: 1rem;        /* mobile readable */
+    min-width: 0;            /* shrink করতে দেয় */
+    border-radius: 0.375rem;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+/* Icon Container (Camera, Mic, Send) */
+.chat-input-bar .icon {
+    flex-shrink: 0;          /* shrink না হোক */
+    width: 1.5rem;           /* touch-friendly */
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Send Button Icon */
+.send-button-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* Camera/Mic icons */
+.chat-input-bar .h-6,
+.chat-input-bar .w-6 {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .chat-input-bar input {
+        font-size: 0.9rem;    /* slightly smaller on tiny screens */
+    }
+    .chat-input-bar .icon,
+    .send-button-icon {
+        width: 1.3rem;
+        height: 1.3rem;
+    }
+}
 
             /* Adjust chat bubble padding */
             .chat-bubble-received, .chat-bubble-sent {
